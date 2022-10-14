@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Subscribe Cloudwatch Metric Streams to Observe Kinesis Firehose
+
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'Configuration parameters'
+      Parameters:
+      - ObserveFirehoseStackName
+
+Parameters:
+  ObserveFirehoseStackName:
+    Description: Stack name for Observe Kinesis Firehose Delivery Stream
+    Type: String
+    Default: "ObserveFirehose"
+
+Resources:
+  Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+              - streams.metrics.cloudwatch.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: root
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'firehose:PutRecord'
+                  - 'firehose:PutRecordBatch'
+                Resource: !ImportValue
+                  "Fn::Sub": "${ObserveFirehoseStackName}:firehose:arn"
+      Description: A metric stream role
+
+  MetricStream:
+    Type: AWS::CloudWatch::MetricStream
+    Properties:
+      Name: !Sub '${AWS::StackName}'
+      FirehoseArn: !ImportValue
+          "Fn::Sub": "${ObserveFirehoseStackName}:firehose:arn"
+      RoleArn: !GetAtt Role.Arn
+      OutputFormat: 'json'

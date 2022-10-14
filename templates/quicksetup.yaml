@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+    - Label:
+        default: 'Required parameters'
+      Parameters:
+      - ObserveCustomer
+      - ObserveToken
+    - Label:
+        default: 'Configuration parameters'
+      Parameters:
+      - ObserveDomain
+      - Version
+      - ReservedConcurrentExecutions
+      - Timeout
+      - MemorySize
+      - S3CustomRules
+Parameters:
+  ObserveCustomer:
+    Type: String
+    Description: Observe Customer ID
+  ObserveToken:
+    Type: String
+    NoEcho: true
+    Description: Observe Ingest Token
+  ObserveDomain:
+    Type: String
+    Default: observeinc.com
+    Description: Observe domain to submit data to
+  Version:
+    Type: String
+    Default: latest
+    Description: Observe lambda function version
+  ReservedConcurrentExecutions:
+    Type: Number
+    Default: 100
+    Description: The number of simultaneous executions to reserve for the function.
+  Timeout:
+    Type: Number
+    Default: 60
+    Description: The amount of time that Lambda allows a function to run before stopping it. The maximum allowed value is 900 seconds.
+  MemorySize:
+    Type: Number
+    Default: 128
+    MinValue: 128
+    MaxValue: 10240
+    Description: The amount of memory that your function has access to. The value must be a multiple of 64 MB.
+  S3CustomRules:
+    Type: String
+    Default: ""
+    Description: >-
+      A base64-encoded JSON array of rules which override how S3 objects are
+      submitted to Observe.
+Mappings:
+  RegionMap:
+    ca-central-1: { BucketName: 'observeinc-ca-central-1' }
+    ap-northeast-1: { BucketName: 'observeinc-ap-northeast-1' }
+    ap-northeast-2: { BucketName: 'observeinc-ap-northeast-2' }
+    ap-northeast-3: { BucketName: 'observeinc-ap-northeast-3' }
+    ap-south-1: { BucketName: 'observeinc-ap-south-1' }
+    ap-southeast-1: { BucketName: 'observeinc-ap-southeast-1' }
+    ap-southeast-2: { BucketName: 'observeinc-ap-southeast-2' }
+    eu-central-1: { BucketName: 'observeinc-eu-central-1' }
+    eu-north-1: { BucketName: 'observeinc-eu-north-1' }
+    eu-west-1: { BucketName: 'observeinc-eu-west-1' }
+    eu-west-2: { BucketName: 'observeinc-eu-west-2' }
+    eu-west-3: { BucketName: 'observeinc-eu-west-3' }
+    sa-east-1: { BucketName: 'observeinc-sa-east-1' }
+    us-east-1: { BucketName: 'observeinc-us-east-1' }
+    us-east-2: { BucketName: 'observeinc-us-east-2' }
+    us-west-1: { BucketName: 'observeinc-us-west-1' }
+    us-west-2: { BucketName: 'observeinc-us-west-2' }
+Conditions:
+    HasS3CustomRules: !Not [!Equals [!Ref S3CustomRules, '']]
+Resources:
+  lambda:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref 'AWS::StackName'
+      Handler: main
+      Role: !GetAtt 'role.Arn'
+      Environment:
+        Variables:
+          OBSERVE_CUSTOMER: !Ref ObserveCustomer
+          OBSERVE_TOKEN: !Ref ObserveToken
+          OBSERVE_DOMAIN: !Ref ObserveDomain
+          S3_CUSTOM_RULES: !If
+            - HasS3CustomRules
+            - !Ref 'S3CustomRules'
+            - !Ref 'AWS::NoValue'
+      Code:
+        S3Bucket: !FindInMap [RegionMap, !Ref 'AWS::Region', BucketName]
+        S3Key: !Sub 'lambda/observer/${Version}.zip'
+      Runtime: go1.x
+      MemorySize: !Ref MemorySize
+      Timeout: !Ref Timeout
+      ReservedConcurrentExecutions: !Ref ReservedConcurrentExecutions
+  role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      - arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole
+      - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+  ping:
+    Type: 'Custom::Ping'
+    Properties:
+      ServiceToken: !GetAtt 'lambda.Arn'
+  allowS3:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref lambda
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref 'AWS::AccountId'
+  allowSNS:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref lambda
+      Principal: sns.amazonaws.com
+      SourceAccount: !Ref 'AWS::AccountId'
+Outputs:
+  LambdaName:
+    Description: 'Lambda Name'
+    Value: !Ref 'lambda'
+    Export:
+      Name: !Sub '${AWS::StackName}:lambda:name'
+  LambdaArn:
+    Description: 'Lambda ARN'
+    Value: !GetAtt 'lambda.Arn'
+    Export:
+      Name: !Sub '${AWS::StackName}:lambda:arn'
