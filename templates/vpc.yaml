@@ -22,10 +22,14 @@ Parameters:
   ObserveCustomer:
     Type: String
     Description: Observe Customer ID
+    AllowedPattern: '\d+'
+    ConstraintDescription: 'Customer ID can only contain digits'
   ObserveToken:
     Type: String
     NoEcho: true
     Description: Observe Ingest Token
+    AllowedPattern: '\S+'
+    ConstraintDescription: 'Token cannot contain spaces'
   ObserveDomain:
     Type: String
     Default: observeinc.com
@@ -112,9 +116,8 @@ Resources:
       Role: !GetAtt 'role.Arn'
       Environment:
         Variables:
-          OBSERVE_CUSTOMER: !Ref ObserveCustomer
-          OBSERVE_TOKEN: !Ref ObserveToken
-          OBSERVE_DOMAIN: !Ref ObserveDomain
+          OBSERVE_URL: !Sub 'https://${ObserveCustomer}.collect.${ObserveDomain}/v1/http'
+          OBSERVE_TOKEN: !Sub '${ObserveToken}'
           S3_CUSTOM_RULES: !If
             - HasS3CustomRules
             - !Ref 'S3CustomRules'

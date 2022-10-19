@@ -17,10 +17,14 @@ Parameters:
   ObserveCustomer:
     Type: String
     Description: Observe Customer ID
+    AllowedPattern: '\d+'
+    ConstraintDescription: 'Customer ID can only contain digits'
   ObserveToken:
     Type: String
     NoEcho: true
     Description: Observe Ingest Token
+    AllowedPattern: '\S+'
+    ConstraintDescription: 'Token cannot contain spaces'
   ObserveDomain:
     Type: String
     Default: observeinc.com

@@ -22,6 +22,7 @@ Metadata:
           - FirehoseHttpEndpointBufferingInterval
           - FirehoseHttpEndpointBufferingSize
           - FirehoseHttpEndpointRetryDuration
+          - FirehoseTransformationLambdaArn
       - Label:
           default: EventBridge Configuration
         Parameters:
@@ -43,10 +44,14 @@ Parameters:
   ObserveCustomer:
     Type: String
     Description: Observe Customer ID
+    AllowedPattern: '\d+'
+    ConstraintDescription: 'Customer ID can only contain digits'
   ObserveToken:
     Type: String
     NoEcho: true
     Description: Observe Ingest Token
+    AllowedPattern: '\S+'
+    ConstraintDescription: 'Token cannot contain spaces'
   ObserveDomain:
     Type: String
     Default: observeinc.com
@@ -104,6 +109,12 @@ Parameters:
       custom destination via HTTPS endpoint fails. It doesn't include the
       periods during which Kinesis Data Firehose waits for acknowledgment
       from the specified destination after each attempt.
+  FirehoseTransformationLambdaArn:
+    Type: String
+    Default: ""
+    Description: |
+      ARN for transformation lambda to attach to Kinesis Firehose. This is
+      optional, and can be useful for scrubbing logs.
   EventBridgeSnapshotSchedule:
     Type: String
     Default: rate(1 hour)
@@ -111,7 +122,7 @@ Parameters:
   EventBridgeSnapshotConfig:
     Type: CommaDelimitedList
     Default: >-
-      apigateway:Get*,autoscaling:Describe*,cloudformation:Describe*,cloudfront:List*,dynamodb:Describe*,dynamodb:List*,ec2:Describe*,ecs:Describe*,ecs:List*,eks:Describe*,eks:List*,elasticbeanstalk:Describe*,elasticache:Describe*,elasticfilesystem:Describe*,elasticloadbalancing:Describe*,elasticmapreduce:Describe*,elasticmapreduce:List*,events:List*,firehose:Describe*,firehose:List*,iam:Get*,iam:List*,kinesis:Describe*,kinesis:List*,kms:Describe*,kms:List*,lambda:List*,logs:Describe*,organizations:Describe*,organizations:List*,rds:Describe*,redshift:Describe*,route53:List*,s3:GetBucket*,s3:List*,secretsmanager:List*,sns:Get*,sns:List*,sqs:Get*,sqs:List*
+      apigateway:Get*,autoscaling:Describe*,cloudformation:Describe*,cloudfront:List*,dynamodb:Describe*,dynamodb:List*,ec2:Describe*,ecs:Describe*,ecs:List*,eks:Describe*,eks:List*,elasticbeanstalk:Describe*,elasticache:Describe*,elasticfilesystem:Describe*,elasticloadbalancing:Describe*,elasticmapreduce:Describe*,elasticmapreduce:List*,events:List*,firehose:Describe*,firehose:List*,iam:Get*,iam:List*,kinesis:Describe*,kinesis:List*,kms:Describe*,kms:List*,lambda:List*,logs:Describe*,organizations:Describe*,organizations:List*,rds:Describe*,redshift:Describe*,route53:List*,s3:GetBucket*,s3:List*,secretsmanager:List*,sns:Get*,sns:List*,sqs:Get*,sqs:List*,synthetics:Describe*,synthetics:List*
     Description: List of API endpoints which get periodically scraped by Observe Lambda
   LambdaVersion:
     Type: String
@@ -228,6 +239,11 @@ Conditions:
     - !Equals
       - Ref: LambdaReservedConcurrentExecutions
       - -1
+  HasTransformationLambdaArn: !Not
+    - !Equals
+      - Ref: FirehoseTransformationLambdaArn
+      - ''
+
 Mappings:
   RegionMap:
     ca-central-1:
@@ -339,13 +355,22 @@ Resources:
           IntervalInSeconds: !Ref FirehoseHttpEndpointBufferingInterval
           SizeInMBs: !Ref FirehoseHttpEndpointBufferingSize
         EndpointConfiguration:
-          AccessKey: !Sub '${ObserveCustomer} ${ObserveToken}'
+          AccessKey: !Sub '${ObserveToken}'
           Name: Observe delivery endpoint
-          Url: !Sub 'https://collect.${ObserveDomain}/v1/kinesis'
+          Url: !Sub 'https://${ObserveCustomer}.collect.${ObserveDomain}/v1/kinesis'
         RequestConfiguration:
           ContentEncoding: GZIP
         RetryOptions:
           DurationInSeconds: !Ref FirehoseHttpEndpointRetryDuration
+        ProcessingConfiguration: !If
+          - HasTransformationLambdaArn
+          - Enabled: true
+            Processors:
+              - Type: Lambda
+                Parameters:
+                  - ParameterName: LambdaArn
+                    ParameterValue: !Ref FirehoseTransformationLambdaArn
+          - !Ref 'AWS::NoValue'
         CloudWatchLoggingOptions:
           Enabled: true
           LogGroupName: !Ref DeliveryStreamLogGroup
@@ -387,6 +412,15 @@ Resources:
               - 'logs:PutLogEvents'
             Resource:
               - !GetAtt DeliveryStreamLogGroup.Arn
+          - !If
+            - HasTransformationLambdaArn
+            - Effect: Allow
+              Action:
+                - 'lambda:InvokeFunction'
+                - 'lambda:GetFunctionConfiguration'
+              Resource:
+                - !Ref FirehoseTransformationLambdaArn
+            - !Ref 'AWS::NoValue'
   DeliveryStreamS3Policy:
     Type: 'AWS::IAM::Policy'
     Properties:
@@ -455,8 +489,8 @@ Resources:
       Role: !GetAtt LambdaRole.Arn
       Environment:
         Variables:
-          OBSERVE_URL: !Sub 'https://collect.${ObserveDomain}/v1/http'
-          OBSERVE_TOKEN: !Sub '${ObserveCustomer} ${ObserveToken}'
+          OBSERVE_URL: !Sub 'https://${ObserveCustomer}.collect.${ObserveDomain}/v1/http'
+          OBSERVE_TOKEN: !Sub '${ObserveToken}'
           S3_CUSTOM_RULES: !If
             - HasLambdaS3CustomRules
             - !Ref 'LambdaS3CustomRules'
