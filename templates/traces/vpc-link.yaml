@@ -1,0 +1,39 @@
+Description: >
+    Deploy a VPC Link
+
+Parameters:
+    LinkName:
+        Description: A name that will be prefixed to resource names
+        Type: String
+    VPCLinkName:
+        Type: String
+    VPCLinkSecurityGroup:
+        Type: String
+    VPCLinkPrivateSubnet1:
+        Type: String
+    VPCLinkPrivateSubnet2:
+        Type: String
+
+Resources:
+    VPCLink:
+        Type: AWS::ApiGatewayV2::VpcLink
+        Properties: 
+            Name: !Ref VPCLinkName
+            SecurityGroupIds: 
+              - !Ref VPCLinkSecurityGroup
+            SubnetIds: 
+              - !Ref VPCLinkPrivateSubnet1
+              - !Ref VPCLinkPrivateSubnet2
+            Tags: 
+                Name: !Sub "${LinkName}-VPCLink"
+
+    # ================== Routes ==================
+
+Outputs:
+    APIGatewayEndpoint:
+        Description: created API Gateway endpoint
+        Value: !GetAtt APIGateway.ApiEndpoint
+
+    CustomDomainRegional:
+        Description: The domain name associated with the regional endpoint for this custom domain name
+        Value: !GetAtt CustomDomain.RegionalDomainName
