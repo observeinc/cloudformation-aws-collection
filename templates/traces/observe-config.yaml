@@ -1,0 +1,41 @@
+---
+extensions:
+  health_check:
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint:
+      http:
+        endpoint:
+  awsxray:
+    endpoint: 0.0.0.0:2000
+    transport: udp
+processors:
+  batch/traces:
+    timeout: 1s
+    send_batch_size: 50
+  batch/metrics:
+    timeout: 60s
+  resourcedetection:
+    detectors: [env, ec2]
+    timeout: 5s
+    override: true
+exporters:
+  otlphttp:
+    endpoint: "https://${OBSERVE_CUSTOMER}.${OBSERVE_COLLECTOR}:443/v1/otel"
+    headers:
+      authorization: "Bearer ${OBSERVE_TOKEN}"
+    sending_queue:
+      num_consumers: 100
+      queue_size: 4
+    retry_on_failure:
+      enabled: true
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp,awsxray]
+      processors: [resourcedetection,batch/traces]
+      exporters: [otlphttp]
+

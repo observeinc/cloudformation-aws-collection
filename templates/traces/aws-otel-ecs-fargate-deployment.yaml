@@ -1,0 +1,122 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: 'Template to install AWS OTel Collector on ECS in Fargate mode'
+Parameters:
+  IAMTaskRole:
+    Description: Task attached IAM role
+    Type: String
+    Default: ObserveAWSTraceTaskRole
+    ConstraintDescription: must be an existing IAM role which will be attached to EC2 instance.
+  IAMExecutionRole:
+    Description: Task Execution attached IAM role
+    Type: String
+    Default: ObserveAWSTraceExecutionRole
+    ConstraintDescription: must be an existing IAM role which will be attached to EC2 instance.
+  IAMPolicy:
+    Description: IAM Role attached IAM Policy
+    Type: String
+    Default: ObserveAWSTracePolicy
+    ConstraintDescription: Must be an existing IAM Managed Policy which will be attached to IAM Role.
+  ClusterName:
+    Type: String
+    Description: Enter the name of your ECS cluster from which you want to collect telemetry data
+  SecurityGroups:
+    Type: CommaDelimitedList
+    Description: The list of SecurityGroupIds in your Virtual Private Cloud (VPC)
+  Subnets:
+    Type: CommaDelimitedList
+    Description: The list of Subnets in your Virtual Private Cloud (VPC)
+  ObserveAWSOTelColConfig:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: Observe-Otel-Col-Config
+    Description: AWS SSM Parameter which contains OTel Collector config file
+  ObserveReplicaServiceName:
+    Type: String
+    Default: observe-aws-otel-col-svc-ecs-fargate
+    Description: ECS Service Name
+Resources:
+  ECSCluster:
+    Type: 'AWS::ECS::Cluster'
+    Properties:
+      ClusterName: !Ref ClusterName
+  ECSTaskDefinition:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      Family: observe-aws-otel-collector-fargate
+      TaskRoleArn: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${IAMTaskRole}'
+      ExecutionRoleArn: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${IAMExecutionRole}'
+      NetworkMode: awsvpc
+      ContainerDefinitions:
+        - LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-create-group: 'True'
+              awslogs-group: /ecs/aws-otel-collector
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: ecs
+          environment:
+            - name: AOT_CONFIG_CONTENT
+              value: !Ref ObserveAWSOTelColConfig
+          image: public.ecr.aws/aws-observability/aws-otel-collector:v0.15.0
+          name: observe-aws-otel-collector
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: 1024
+      Memory: 2048
+    DependsOn:
+      - ECSTaskRole
+      - ECSExecutionRole
+  ECSTaskRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Description: Allows ECS tasks to call AWS services on your behalf.
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: !Ref IAMPolicy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:PutLogEvents'
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:DescribeLogStreams'
+                  - 'logs:DescribeLogGroups'
+                  - 'xray:PutTraceSegments'
+                  - 'xray:PutTelemetryRecords'
+                  - 'xray:GetSamplingRules'
+                  - 'xray:GetSamplingTargets'
+                  - 'xray:GetSamplingStatisticSummaries'
+                  - 'ssm:GetParameters'
+                Resource: '*'
+      RoleName: !Ref IAMTaskRole
+  ECSExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      Description: >-
+        Allows ECS container agent makes calls to the Amazon ECS API on your
+        behalf.
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: ''
+            Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
+        - 'arn:aws:iam::aws:policy/CloudWatchLogsFullAccess'
+        - 'arn:aws:iam::aws:policy/AmazonSSMReadOnlyAccess'
+      RoleName: !Ref IAMExecutionRole
+      # { "Version": "2012-10-17", "Statement": [ {
+      # "Action": [ ssm:PutParameter ssm:AddTagsToResource ],
+      # "Resource": [ "*" ],
+      # "Effect": "Allow" }
+      # ] }
