@@ -234,6 +234,12 @@ Conditions:
   TrailIsMultiRegion: !Equals
     - Ref: TrailMultiRegion
     - true
+  TrailHasExcludeManagementEventSources: !Not
+    - !Equals
+      - !Join
+        - ''
+        - Ref: TrailExcludeManagementEventSources
+      - ''
   HasLambdaS3CustomRules: !Not
     - !Equals
       - !Ref LambdaS3CustomRules
@@ -684,8 +690,10 @@ Resources:
         - TrailIsMultiRegion
         - true
         - false
-      EventSelectors:
-        - ExcludeManagementEventSources: !Ref TrailExcludeManagementEventSources
+      EventSelectors: !If
+        - TrailHasExcludeManagementEventSources
+        - - ExcludeManagementEventSources: !Ref TrailExcludeManagementEventSources
+        - []
   Snapshot:
     Type: 'Custom::Invoke'
     Condition: InvokeSnapshotOnStart
