@@ -8,8 +8,11 @@ All notable changes to this project will be documented in this file.
 
 
 <a name="v0.5.0"></a>
-## [v0.5.0] - 0001-01-01
+## [v0.5.0] - 2023-02-13
 
+- fix: Add cloudformation:List to the default parameter value of EventBridgeSnapshotConfig.
+- make: extra s3 args, add `--acl public-read` ([#5](https://github.com/observeinc/cloudformation-aws-collection/issues/5))
+- chore: update changelog
 
 
 <a name="v0.4.0"></a>
