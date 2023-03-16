@@ -41,6 +41,11 @@ Metadata:
         Parameters:
           - BucketExpirationInDays
           - LogGroupExpirationInDays
+      - Label:
+          default: CloudWatch Metrics Configuration
+        Parameters:
+          - MetricsIncludeFilters
+          - MetricsExcludeFilters
 Parameters:
   ObserveCustomer:
     Type: String
@@ -224,6 +229,18 @@ Parameters:
     AllowedValues:
       - true
       - false
+  MetricsIncludeFilters:
+    Type: CommaDelimitedList
+    Default: ""
+    Description: >-
+      Namespaces to include. Mutually exclusive with MetricsExcludeFilters.
+  MetricsExcludeFilters:
+    Type: CommaDelimitedList
+    Default: ""
+    Description: >-
+      Namespaces to exclude. Mutually exclusive with cloudwatch_metrics_include_filters.
+
+      To disable Cloudwatch Metrics Stream entirely, use ["*"].
 Conditions:
   TrailIsEnabled: !Equals
      - Ref: TrailEnabled
@@ -258,7 +275,12 @@ Conditions:
     - !Equals
       - Ref: FirehoseTransformationLambdaArn
       - ''
-
+  MetricsIsEnabled: !Not
+    - !Equals
+      - !Join
+        - ','
+        - Ref: MetricsExcludeFilters
+      - '*'
 Mappings:
   RegionMap:
     ca-central-1:
@@ -607,6 +629,7 @@ Resources:
       RoleArn: !GetAtt CloudWatchLogsRole.Arn
   MetricStreamRole:
     Type: 'AWS::IAM::Role'
+    Condition: MetricsIsEnabled
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
@@ -619,6 +642,7 @@ Resources:
               - 'sts:AssumeRole'
   MetricStream:
     Type: 'AWS::CloudWatch::MetricStream'
+    Condition: MetricsIsEnabled
     DependsOn:
       - DeliveryStreamPolicy
     Properties:
@@ -626,6 +650,8 @@ Resources:
       FirehoseArn: !GetAtt DeliveryStream.Arn
       RoleArn: !GetAtt MetricStreamRole.Arn
       OutputFormat: json
+      IncludeFilters: !Ref MetricsIncludeFilters
+      ExcludeFilters: !Ref MetricsExcludeFilters
   EventBridgeRole:
     Type: 'AWS::IAM::Role'
     Properties:
