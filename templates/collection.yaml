@@ -41,6 +41,10 @@ Metadata:
         Parameters:
           - BucketExpirationInDays
           - LogGroupExpirationInDays
+      - Label:
+          default: CloudWatch Metrics Configuration
+        Parameters:
+          - MetricsEnabled
 Parameters:
   ObserveCustomer:
     Type: String
@@ -224,6 +228,14 @@ Parameters:
     AllowedValues:
       - true
       - false
+  MetricsEnabled:
+    Type: String
+    Default: true
+    Description: >-
+      Whether to collect CloudWatch Metric data or not. Only disable if you already submit CloudWatch Metric data separately.
+    AllowedValues:
+      - true
+      - false
 Conditions:
   TrailIsEnabled: !Equals
      - Ref: TrailEnabled
@@ -231,6 +243,9 @@ Conditions:
   SubscriptionIsEnabled: !Equals
      - Ref: SubscriptionEnabled
      - true
+  MetricsIsEnabled: !Equals
+     - Ref: MetricsEnabled
+     - 'true'
   TrailIsMultiRegion: !Equals
     - Ref: TrailMultiRegion
     - true
@@ -619,6 +634,7 @@ Resources:
               - 'sts:AssumeRole'
   MetricStream:
     Type: 'AWS::CloudWatch::MetricStream'
+    Condition: MetricsIsEnabled
     DependsOn:
       - DeliveryStreamPolicy
     Properties:
