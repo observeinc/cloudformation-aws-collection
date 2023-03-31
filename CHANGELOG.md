@@ -7,9 +7,22 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v0.8.0"></a>
+## [v0.8.0] - 0001-01-01
+
+
+
+<a name="v0.7.0"></a>
+## [v0.7.0] - 2023-03-31
+
+- feat: metric stream disable ([#8](https://github.com/observeinc/cloudformation-aws-collection/issues/8))
+- feat: parameter to disable metric stream ([#8](https://github.com/observeinc/cloudformation-aws-collection/issues/8))
+
+
 <a name="v0.6.0"></a>
 ## [v0.6.0] - 2023-03-13
 
+- chore: update changelog
 - feat: enable log delivery to S3 via canned ACL ([#7](https://github.com/observeinc/cloudformation-aws-collection/issues/7))
 
 
@@ -52,7 +65,9 @@ All notable changes to this project will be documented in this file.
 - first commit
 
 
-[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.8.0...HEAD
+[v0.8.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.7.0...v0.8.0
+[v0.7.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.6.0...v0.7.0
 [v0.6.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.5.0...v0.6.0
 [v0.5.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.4.0...v0.5.0
 [v0.4.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.3.0...v0.4.0
