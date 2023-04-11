@@ -1,0 +1,206 @@
+Description: Upload an object to an S3 bucket, triggering a Lambda event, returning the object key as a Stack Output.
+Parameters:
+  Key:
+    Description: S3 Object key
+    Type: String
+    Default: test
+  Body:
+    Description: S3 Object body content
+    Type: String
+    Default: TEST CONTENT
+  BucketName:
+    Description: S3 Bucket name (must already exist)
+    Type: String
+  ObserveCustomer:
+    Type: String
+    Description: Observe Customer ID
+    AllowedPattern: '\d+'
+    ConstraintDescription: 'Customer ID can only contain digits'
+  ObserveToken:
+    Type: String
+    NoEcho: true
+    Description: Observe Ingest Token
+    AllowedPattern: '\S+'
+    ConstraintDescription: 'Token cannot contain spaces'
+  ObserveDomain:
+    Type: String
+    Default: observeinc-eng.com
+    Description: Observe domain to submit data to
+  Version:
+    Type: String
+    Default: latest
+    Description: Observe lambda function version
+Mappings:
+  RegionMap:
+    ca-central-1: { BucketName: 'observeinc-ca-central-1' }
+    ap-northeast-1: { BucketName: 'observeinc-ap-northeast-1' }
+    ap-northeast-2: { BucketName: 'observeinc-ap-northeast-2' }
+    ap-northeast-3: { BucketName: 'observeinc-ap-northeast-3' }
+    ap-south-1: { BucketName: 'observeinc-ap-south-1' }
+    ap-southeast-1: { BucketName: 'observeinc-ap-southeast-1' }
+    ap-southeast-2: { BucketName: 'observeinc-ap-southeast-2' }
+    eu-central-1: { BucketName: 'observeinc-eu-central-1' }
+    eu-north-1: { BucketName: 'observeinc-eu-north-1' }
+    eu-west-1: { BucketName: 'observeinc-eu-west-1' }
+    eu-west-2: { BucketName: 'observeinc-eu-west-2' }
+    eu-west-3: { BucketName: 'observeinc-eu-west-3' }
+    sa-east-1: { BucketName: 'observeinc-sa-east-1' }
+    us-east-1: { BucketName: 'observeinc-us-east-1' }
+    us-east-2: { BucketName: 'observeinc-us-east-2' }
+    us-west-1: { BucketName: 'observeinc-us-west-1' }
+    us-west-2: { BucketName: 'observeinc-us-west-2' }
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+  allowS3:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref BucketWatcher
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref 'AWS::AccountId'
+      SourceArn: !Sub 'arn:aws:s3:::${BucketName}'
+  BucketConfiguration:
+    Type: Custom::S3BucketConfiguration
+    DependsOn:
+    - BucketPermission
+    - NotificationBucketPolicy
+    Properties:
+      ServiceToken: !GetAtt S3BucketConfiguration.Arn
+      Bucket: !Ref BucketName
+      NotificationConfiguration:
+        LambdaFunctionConfigurations:
+        - Events: ['s3:ObjectCreated:*']
+          LambdaFunctionArn: !GetAtt BucketWatcher.Arn
+  S3BucketConfiguration:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: S3 Object Custom Resource
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: !Sub |
+          var response = require('cfn-response');
+          var AWS = require('aws-sdk');
+          var s3 = new AWS.S3();
+          exports.handler = function(event, context) {
+            var respond = (e) => response.send(event, context, e ? response.FAILED : response.SUCCESS, e ? e : {});
+            process.on('uncaughtException', e=>failed(e));
+            var params = event.ResourceProperties;
+            delete params.ServiceToken;
+            if (event.RequestType === 'Delete') {
+              params.NotificationConfiguration = {};
+              s3.putBucketNotificationConfiguration(params).promise()
+                .then((data)=>respond())
+                .catch((e)=>respond());
+            } else {
+              s3.putBucketNotificationConfiguration(params).promise()
+                .then((data)=>respond())
+                .catch((e)=>respond(e));
+            }
+          };
+      Timeout: 30
+      Runtime: nodejs12.x
+  BucketPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref BucketWatcher
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref "AWS::AccountId"
+      SourceArn: !Sub "arn:aws:s3:::${BucketName}"
+  BucketWatcher:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Sends a Wait Condition signal to Handle when invoked
+      FunctionName: !Ref 'AWS::StackName'
+      Handler: index.handler
+      Role: !GetAtt 'LambdaExecutionRole.Arn'
+      Environment:
+        Variables:
+          OBSERVE_URL: !Sub 'https://${ObserveCustomer}.collect.${ObserveDomain}/v1/http'
+          OBSERVE_TOKEN: !Sub '${ObserveToken}'
+          S3_CUSTOM_RULES: !Ref 'AWS::NoValue'
+      Code:
+        S3Bucket: !FindInMap [RegionMap, !Ref 'AWS::Region', BucketName]
+        S3Key: !Sub 'lambda/observer/${Version}.zip'
+      Runtime: go1.x
+      MemorySize: 128
+      Timeout: 60
+      ReservedConcurrentExecutions: 100
+  S3Object:
+    Type: Custom::S3Object
+    DependsOn: BucketConfiguration
+    Properties:
+      ServiceToken: !GetAtt S3ObjectFunction.Arn
+      Bucket: !Ref BucketName
+      Key: !Ref Key
+      Body: !Ref Body
+  S3ObjectFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: S3 Object Custom Resource
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        ZipFile: !Sub |
+          var response = require('cfn-response');
+          var AWS = require('aws-sdk');
+          var s3 = new AWS.S3();
+          exports.handler = function(event, context) {
+            var respond = (e) => response.send(event, context, e ? response.FAILED : response.SUCCESS, e ? e : {});
+            var params = event.ResourceProperties;
+            delete params.ServiceToken;
+            if (event.RequestType == 'Create' || event.RequestType == 'Update') {
+              s3.putObject(params).promise()
+                .then((data)=>respond())
+                .catch((e)=>respond(e));
+            } else if (event.RequestType == 'Delete') {
+              delete params.Body;
+              s3.deleteObject(params).promise()
+                .then((data)=>respond())
+                .catch((e)=>respond(e));
+            } else {
+              respond({Error: 'Invalid request type'});
+            }
+          };
+      Timeout: 30
+      Runtime: nodejs12.x
+  NotificationBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref BucketName
+      PolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Action:
+            - 's3:PutBucketNotification'
+            Resource: !Sub "arn:aws:s3:::${BucketName}"
+            Principal:
+              AWS: !GetAtt LambdaExecutionRole.Arn
+Outputs:
+  LambdaName:
+    Description: 'Lambda Name'
+    Value: !Ref 'BucketWatcher'
+    Export:
+      Name: !Sub '${AWS::StackName}::name'
+  LambdaArn:
+    Description: 'Lambda ARN'
+    Value: !GetAtt 'BucketWatcher.Arn'
+    Export:
+      Name: !Sub '${AWS::StackName}:S3ObjectFunction:arn'
