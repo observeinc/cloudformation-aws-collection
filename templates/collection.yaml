@@ -654,13 +654,28 @@ Resources:
                 - events.amazonaws.com
             Action:
               - 'sts:AssumeRole'
-  EventBridgeCollectAll:
+  EventBridgeCollectNonCloudTrail:
     Type: 'AWS::Events::Rule'
     DependsOn:
       - DeliveryStreamPolicy
     Properties:
-      Description: Export all events
-      EventPattern: !Sub '{ "account": [ "${AWS::AccountId}" ] }'
+      Description: Export all non-CloudTrail events
+      EventPattern: '{ "detail-type": [{ "anything-but": "AWS API Call via CloudTrail" }] }'
+      Targets:
+        - Id: ObserveKinesisFirehose
+          Arn: !GetAtt DeliveryStream.Arn
+          RoleArn: !GetAtt EventBridgeRole.Arn
+  EventBridgeCollectCloudTrail:
+    Type: 'AWS::Events::Rule'
+    DependsOn:
+      - DeliveryStreamPolicy
+    Properties:
+      Description: Export CloudTrail events
+      EventPattern: !Sub
+        - '{ "detail-type": ["AWS API Call via CloudTrail"], "detail": {"eventSource": [{ "anything-but": ["${sources}"] }] }  }'
+        - sources: !Join
+            - '","'
+            - !Ref TrailExcludeManagementEventSources
       Targets:
         - Id: ObserveKinesisFirehose
           Arn: !GetAtt DeliveryStream.Arn
