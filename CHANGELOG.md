@@ -8,8 +8,13 @@ All notable changes to this project will be documented in this file.
 
 
 <a name="v0.8.0"></a>
-## [v0.8.0] - 0001-01-01
+## [v0.8.0] - 2023-04-19
 
+- chore: update CHANGELOG
+- fix: adjust bucket ownership to allow ACLs ([#12](https://github.com/observeinc/cloudformation-aws-collection/issues/12))
+- feat: add Cloudwatch Metrics pull example ([#9](https://github.com/observeinc/cloudformation-aws-collection/issues/9))
+- perf: exclude some cloudtrail events from eventbridge rules ([#10](https://github.com/observeinc/cloudformation-aws-collection/issues/10))
+- chore: update changelog
 
 
 <a name="v0.7.0"></a>
