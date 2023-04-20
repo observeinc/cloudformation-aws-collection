@@ -7,8 +7,6 @@ Metadata:
         Parameters:
           - ObserveCustomer
           - ObserveToken
-          - BucketName
-          - LoggingBucketName
       - Label:
           default: Observe Lambda Configuration
         Parameters:
@@ -23,6 +21,10 @@ Metadata:
         Parameters:
           - LogGroupExpirationInDays
 Parameters:
+  ManagedResourcePrefix:
+    Type: 'String'
+    Description: 'Prefix for the managed resources'
+    Default: 'aws-controltower'
   ObserveCustomer:
     Type: String
     Description: Observe Customer ID
@@ -38,12 +40,6 @@ Parameters:
     Type: String
     Default: observeinc.com
     Description: Observe domain to submit data to
-  LoggingBucketName:
-    Type: String
-    Description: The ControlTower LoggingBucketName for s3 AcessLogs
-  BucketName:
-    Type: String
-    Description: The ControlTower BucketName for s3 AcessLogs
   LogGroupExpirationInDays:
     Type: Number
     Default: 365
@@ -106,10 +102,6 @@ Conditions:
     - !Equals
       - Ref: LambdaReservedConcurrentExecutions
       - -1
-  HasLoggingBucketName: !Not
-    - !Equals
-      - !Ref LoggingBucketName
-      - ''
 
 Mappings:
   RegionMap:
@@ -202,14 +194,11 @@ Resources:
             Action:
               - 's3:Get*'
               - 's3:List*'
-            Resource: !If
-                - HasLoggingBucketName
-                - - !Sub 'arn:${AWS::Partition}:s3:::${BucketName}'
-                  - !Sub 'arn:${AWS::Partition}:s3:::${BucketName}/*'
-                  - !Sub 'arn:${AWS::Partition}:s3:::${LoggingBucketName}'
-                  - !Sub 'arn:${AWS::Partition}:s3:::${LoggingBucketName}/*'
-                - - !Sub 'arn:${AWS::Partition}:s3:::${LoggingBucketName}'
-                  - !Sub 'arn:${AWS::Partition}:s3:::${LoggingBucketName}/*'
+            Resource:
+                - !Sub 'arn:${AWS::Partition}:s3:::${ManagedResourcePrefix}-logs-${AWS::AccountId}-${AWS::Region}'
+                - !Sub 'arn:${AWS::Partition}:s3:::${ManagedResourcePrefix}-logs-${AWS::AccountId}-${AWS::Region}/*'
+                - !Sub 'arn:${AWS::Partition}:s3:::${ManagedResourcePrefix}-s3-access-logs-${AWS::AccountId}-${AWS::Region}'
+                - !Sub 'arn:${AWS::Partition}:s3:::${ManagedResourcePrefix}-s3-access-logs-${AWS::AccountId}-${AWS::Region}/*'
       Roles:
         - !Ref LambdaRole
   LambdaS3Permission:
