@@ -1,0 +1,251 @@
+AWSTemplateFormatVersion: 2010-09-09
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: Required parameters
+        Parameters:
+          - ObserveCustomer
+          - ObserveToken
+          - ManagedResourcePrefix
+      - Label:
+          default: Observe Lambda Configuration
+        Parameters:
+          - LambdaVersion
+          - LambdaReservedConcurrentExecutions
+          - LambdaTimeout
+          - LambdaMemorySize
+          - LambdaS3CustomRules
+          - LambdaS3ReadAny
+Parameters:
+  ObserveCustomer:
+    Type: String
+    Description: Observe Customer ID
+    AllowedPattern: '\d+'
+    ConstraintDescription: 'Customer ID can only contain digits'
+  ObserveToken:
+    Type: String
+    NoEcho: true
+    Description: Observe Ingest Token
+    AllowedPattern: '\S+'
+    ConstraintDescription: 'Token cannot contain spaces'
+  ObserveDomain:
+    Type: String
+    Default: observeinc.com
+    Description: Observe domain to submit data to
+  ManagedResourcePrefix:
+    Type: String
+    Description: The ControlTower ManagedResourcePrefix
+    Default: aws-controltower
+  LambdaVersion:
+    Type: String
+    Default: latest
+    Description: Observe lambda function version
+  LambdaReservedConcurrentExecutions:
+    Type: Number
+    Default: 100
+    Description: The number of simultaneous executions to reserve for the function. Set to -1 to not reserve concurrent executions.
+  LambdaTimeout:
+    Type: Number
+    Default: 60
+    Description: >-
+      The amount of time that Lambda allows a function to run before stopping
+      it. The maximum allowed value is 900 seconds.
+  LambdaMemorySize:
+    Type: Number
+    Default: 128
+    MinValue: 128
+    MaxValue: 10240
+    Description: >-
+      The amount of memory that your function has access to. The value must be a
+      multiple of 64 MB.
+  LambdaS3CustomRules:
+    Type: String
+    Default: ""
+    Description: >-
+      A base64-encoded JSON array of rules which override how S3 objects are
+      submitted to Observe.
+  LambdaS3ReadAny:
+    Type: String
+    Default: false
+    Description: >-
+      Grant the lambda S3 read only access to all buckets. This simplifies the
+      process of subscribing new buckets to the lambda. The lambda function
+      will only ever attempt to read objects for which it has received
+      notifications. By default, we restrict the lambda to only being allowed
+      to access the S3 bucket managed by the cloudformation template.
+    AllowedValues:
+      - 'true'
+      - 'false'
+Conditions:
+  HasLambdaS3CustomRules: !Not
+    - !Equals
+      - !Ref LambdaS3CustomRules
+      - ''
+  HasReservedConcurrency: !Not
+    - !Equals
+      - Ref: LambdaReservedConcurrentExecutions
+      - -1
+  LambdaS3ReadAnyIsEnabled: !Equals
+    - Ref: LambdaS3ReadAny
+    - false
+
+Mappings:
+  RegionMap:
+    ca-central-1:
+      BucketName: observeinc-ca-central-1
+    ap-northeast-1:
+      BucketName: observeinc-ap-northeast-1
+    ap-northeast-2:
+      BucketName: observeinc-ap-northeast-2
+    ap-northeast-3:
+      BucketName: observeinc-ap-northeast-3
+    ap-south-1:
+      BucketName: observeinc-ap-south-1
+    ap-southeast-1:
+      BucketName: observeinc-ap-southeast-1
+    ap-southeast-2:
+      BucketName: observeinc-ap-southeast-2
+    eu-central-1:
+      BucketName: observeinc-eu-central-1
+    eu-north-1:
+      BucketName: observeinc-eu-north-1
+    eu-west-1:
+      BucketName: observeinc-eu-west-1
+    eu-west-2:
+      BucketName: observeinc-eu-west-2
+    eu-west-3:
+      BucketName: observeinc-eu-west-3
+    sa-east-1:
+      BucketName: observeinc-sa-east-1
+    us-east-1:
+      BucketName: observeinc-us-east-1
+    us-east-2:
+      BucketName: observeinc-us-east-2
+    us-west-1:
+      BucketName: observeinc-us-west-1
+    us-west-2:
+      BucketName: observeinc-us-west-2
+Resources:
+  Lambda:
+    Type: 'AWS::Lambda::Function'
+    Properties:
+      FunctionName: !Ref 'AWS::StackName'
+      Handler: main
+      Role: !GetAtt LambdaRole.Arn
+      Environment:
+        Variables:
+          OBSERVE_URL: !Sub 'https://${ObserveCustomer}.collect.${ObserveDomain}/v1/http'
+          OBSERVE_TOKEN: !Sub '${ObserveToken}'
+          S3_CUSTOM_RULES: !If
+            - HasLambdaS3CustomRules
+            - !Ref 'LambdaS3CustomRules'
+            - !Ref 'AWS::NoValue'
+      Code:
+        S3Bucket: !FindInMap
+          - RegionMap
+          - !Ref 'AWS::Region'
+          - BucketName
+        S3Key: !Sub 'lambda/observer/${LambdaVersion}.zip'
+      Runtime: go1.x
+      MemorySize: !Ref LambdaMemorySize
+      Timeout: !Ref LambdaTimeout
+      ReservedConcurrentExecutions: !If
+       - HasReservedConcurrency
+       - !Ref LambdaReservedConcurrentExecutions
+       - !Ref 'AWS::NoValue'
+  LambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole'
+  LambdaReadBucket:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: AllowS3Read
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - 's3:Get*'
+              - 's3:List*'
+            Resource: !If
+              - LambdaS3ReadAnyIsEnabled
+              - 
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ManagedResourcePrefix}-logs-${AWS::AccountId}-${AWS::Region}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ManagedResourcePrefix}-logs-${AWS::AccountId}-${AWS::Region}/*'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ManagedResourcePrefix}-s3-access-${AWS::AccountId}-${AWS::Region}'
+                  - !Sub 'arn:${AWS::Partition}:s3:::${ManagedResourcePrefix}-s3-access-${AWS::AccountId}-${AWS::Region}/'
+              - 'arn:aws:s3:::*'
+      Roles:
+        - !Ref LambdaRole
+  ping:
+    Type: 'Custom::Ping'
+    Properties:
+      ServiceToken: !GetAtt 'Lambda.Arn'
+  LambdaS3Permission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref Lambda
+      Principal: s3.amazonaws.com
+      SourceAccount: !Ref 'AWS::AccountId'
+  SNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: observe-trigger-topic
+      TopicName: observe-trigger-topic
+      Subscription:
+      - Endpoint: !GetAtt Lambda.Arn
+        Protocol: lambda
+  LambdaSNSPermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref Lambda
+      Principal: sns.amazonaws.com
+      SourceAccount: !Ref 'AWS::AccountId'
+  LoggingBucketToSNSPermission:
+    Type: AWS::SNS::TopicPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+               - s3.amazonaws.com
+               - sns.amazonaws.com
+            Action: sns:Publish
+            Resource: !Ref SNSTopic
+            Condition:
+                StringEquals:
+                  "aws:SourceAccount": !Ref AWS::AccountId
+      Topics:
+      - !Ref  SNSTopic
+Outputs:
+  SNSTopic:
+    Description: 'SNS Topic'
+    Value: !Ref SNSTopic
+  LambdaName:
+    Description: 'Lambda Name'
+    Value: !Ref 'Lambda'
+    Export:
+      Name: !Sub '${AWS::StackName}:lambda:name'
+  LambdaArn:
+    Description: 'Lambda ARN'
+    Value: !GetAtt 'Lambda.Arn'
+    Export:
+      Name: !Sub '${AWS::StackName}:lambda:arn'

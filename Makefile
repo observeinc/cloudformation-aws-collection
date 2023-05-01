@@ -12,6 +12,8 @@ cloudformation:
 	$(S3_CP_ARGS) templates/quicksetup.yaml s3://observeinc/cloudformation/quicksetup-latest.yaml
 	$(S3_CP_ARGS) templates/vpc.yaml s3://observeinc/cloudformation/vpc-`semtag final -s minor -o`.yaml
 	$(S3_CP_ARGS) templates/vpc.yaml s3://observeinc/cloudformation/vpc-latest.yaml
+	$(S3_CP_ARGS) templates/controltower.yaml s3://observeinc/cloudformation/controltower-`semtag final -s minor -o`.yaml
+	$(S3_CP_ARGS) templates/controltower.yaml s3://observeinc/cloudformation/controltower-latest.yaml
 
 .PHONY: changelog
 changelog:

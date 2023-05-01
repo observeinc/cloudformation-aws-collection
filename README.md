@@ -21,4 +21,7 @@ Given these egresses, we extract data from the following sources:
 
 When creating a CloudFormation stack, set the S3 URL to [`https://observeinc.s3-us-west-2.amazonaws.com/cloudformation/collection-latest.yaml`](https://observeinc.s3-us-west-2.amazonaws.com/cloudformation/collection-latest.yaml).
 
+# Control Tower
+When creating a CloudFormation for **control tower**, set the S3 URL to https://observeinc.s3-us-west-2.amazonaws.com/cloudformation/controltower-latest.yaml
+
 For pinned template versions, see [the Observe Collection CF template change log](https://github.com/observeinc/cloudformation-aws-collection/blob/main/CHANGELOG.md) in GitHub.
