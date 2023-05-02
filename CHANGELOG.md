@@ -7,6 +7,20 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v0.9.0"></a>
+## [v0.9.0] - 2023-05-01
+
+- chore: Update Makefile and README for supporting control tower
+- feat: Add Central Logging Control Tower CF
+
+### 
+
+* Lambda Accepts Event Snapshot Sigal for S3 Buckets and egresses related data to Observe collectors
+* Create SNS +Policy for Lambda and S3 signals
+* `LambdaS3ReadAny` for broad bucket access.
+* Requires ManagedResourcePrefix from ControlTower Baseline
+
+
 <a name="v0.8.0"></a>
 ## [v0.8.0] - 2023-04-19
 
@@ -70,7 +84,8 @@ All notable changes to this project will be documented in this file.
 - first commit
 
 
-[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.8.0...HEAD
+[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.9.0...HEAD
+[v0.9.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.8.0...v0.9.0
 [v0.8.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.7.0...v0.8.0
 [v0.7.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.6.0...v0.7.0
 [v0.6.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.5.0...v0.6.0
