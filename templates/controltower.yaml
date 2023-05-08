@@ -191,6 +191,19 @@ Resources:
               - 'arn:aws:s3:::*'
       Roles:
         - !Ref LambdaRole
+  LambdaDeliverConfigSnapshot:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: AllowDeliverConfigSnapshot
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'config:DeliverConfigSnapshot'
+            Resource: !Sub 'arn:${AWS::Partition}:s3:::${ManagedResourcePrefix}-BaselineConfigDeliveryChannel'
+      Roles:
+        - !Ref LambdaRole
   ping:
     Type: 'Custom::Ping'
     Properties:
