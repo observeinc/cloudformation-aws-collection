@@ -17,6 +17,7 @@ Metadata:
           - LambdaMemorySize
           - LambdaS3CustomRules
           - LambdaS3ReadAny
+          - LogGroupExpirationInDays
 Parameters:
   ObserveCustomer:
     Type: String
@@ -77,6 +78,19 @@ Parameters:
     AllowedValues:
       - 'true'
       - 'false'
+  LogGroupExpirationInDays:
+    Type: Number
+    Default: 365
+    AllowedValues:
+      - 1
+      - 3
+      - 7
+      - 14
+      - 30
+      - 90
+      - 365
+    Description: |
+      Expiration to set on log groups
 Conditions:
   HasLambdaS3CustomRules: !Not
     - !Equals
@@ -127,8 +141,18 @@ Mappings:
     us-west-2:
       BucketName: observeinc-us-west-2
 Resources:
+  LambdaLogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: !Join
+        - ''
+        - - /aws/lambda/
+          - !Ref 'AWS::StackName'
+      RetentionInDays: !Ref LogGroupExpirationInDays
   Lambda:
     Type: 'AWS::Lambda::Function'
+    DependsOn:
+      - LambdaLogGroup
     Properties:
       FunctionName: !Ref 'AWS::StackName'
       Handler: main
