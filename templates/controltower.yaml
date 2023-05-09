@@ -218,8 +218,8 @@ Resources:
   SNSTopic:
     Type: AWS::SNS::Topic
     Properties:
-      DisplayName: observe-trigger-topic
-      TopicName: observe-trigger-topic
+      DisplayName: !Ref 'AWS::StackName'
+      TopicName: !Ref 'AWS::StackName'
       Subscription:
       - Endpoint: !GetAtt Lambda.Arn
         Protocol: lambda
