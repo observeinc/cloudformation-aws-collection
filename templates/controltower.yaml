@@ -201,7 +201,7 @@ Resources:
           - Effect: Allow
             Action:
               - 'config:DeliverConfigSnapshot'
-            Resource: !Sub 'arn:${AWS::Partition}:s3:::${ManagedResourcePrefix}-BaselineConfigDeliveryChannel'
+            Resource: "*"
       Roles:
         - !Ref LambdaRole
   ping:
@@ -248,6 +248,43 @@ Resources:
                   "aws:SourceAccount": !Ref AWS::AccountId
       Topics:
       - !Ref  SNSTopic
+  EventBridgeTriggerOnSubscribe:
+    Type: 'AWS::Events::Rule'
+    DependsOn:
+      - LambdaDeliverConfigSnapshot
+    Properties:
+      Name: !Sub '${AWS::StackName}SnapshotOnSubscribe'
+      Description: Trigger Config Snapshot on Bucket Notification Subscription
+      EventPattern: !Sub |
+        {
+          "source": ["aws.s3"],
+          "detail": {
+            "eventName": ["PutBucketNotification"],
+            "requestParameters": {
+              "NotificationConfiguration": {
+                "TopicConfiguration": {
+                  "Topic": ["${SNSTopic}"]
+                }
+              }
+            }
+          }
+        }
+      Targets:
+        - Id: ObserveLambda
+          Arn: !GetAtt Lambda.Arn
+          Input: !Sub |
+            {
+              "deliverConfigSnapshot": {
+                "deliveryChannelName": "${ManagedResourcePrefix}-BaselineConfigDeliveryChannel"
+              }
+            }
+  LambdaEventBridgePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref Lambda
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt EventBridgeTriggerOnSubscribe.Arn
 Outputs:
   SNSTopic:
     Description: 'SNS Topic'
