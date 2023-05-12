@@ -18,6 +18,7 @@ Metadata:
           - LambdaS3CustomRules
           - LambdaS3ReadAny
           - LambdaVerbosity
+          - LogGroupExpirationInDays
 Parameters:
   ObserveCustomer:
     Type: String
@@ -44,7 +45,7 @@ Parameters:
     Description: Observe lambda function version
   LambdaReservedConcurrentExecutions:
     Type: Number
-    Default: 100
+    Default: -1
     Description: The number of simultaneous executions to reserve for the function. Set to -1 to not reserve concurrent executions.
   LambdaTimeout:
     Type: Number
@@ -82,6 +83,19 @@ Parameters:
     Type: Number
     Default: 3
     Description: Logging verbosity for Lambda
+  LogGroupExpirationInDays:
+    Type: Number
+    Default: 365
+    AllowedValues:
+      - 1
+      - 3
+      - 7
+      - 14
+      - 30
+      - 90
+      - 365
+    Description: |
+      Expiration to set on log groups
 Conditions:
   HasLambdaS3CustomRules: !Not
     - !Equals
@@ -132,8 +146,18 @@ Mappings:
     us-west-2:
       BucketName: observeinc-us-west-2
 Resources:
+  LambdaLogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: !Join
+        - ''
+        - - /aws/lambda/
+          - !Ref 'AWS::StackName'
+      RetentionInDays: !Ref LogGroupExpirationInDays
   Lambda:
     Type: 'AWS::Lambda::Function'
+    DependsOn:
+      - LambdaLogGroup
     Properties:
       FunctionName: !Ref 'AWS::StackName'
       Handler: main
@@ -224,8 +248,8 @@ Resources:
   SNSTopic:
     Type: AWS::SNS::Topic
     Properties:
-      DisplayName: observe-trigger-topic
-      TopicName: observe-trigger-topic
+      DisplayName: !Ref 'AWS::StackName'
+      TopicName: !Ref 'AWS::StackName'
       Subscription:
       - Endpoint: !GetAtt Lambda.Arn
         Protocol: lambda
