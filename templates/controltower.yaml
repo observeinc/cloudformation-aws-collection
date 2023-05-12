@@ -44,7 +44,7 @@ Parameters:
     Description: Observe lambda function version
   LambdaReservedConcurrentExecutions:
     Type: Number
-    Default: 100
+    Default: -1
     Description: The number of simultaneous executions to reserve for the function. Set to -1 to not reserve concurrent executions.
   LambdaTimeout:
     Type: Number
