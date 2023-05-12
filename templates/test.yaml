@@ -1,0 +1,9 @@
+Resource: !If
+  - LambdaS3ReadAnyIsEnabled
+  - - !GetAtt Bucket.Arn
+    - !Join
+      - ''
+      - - 'arn:aws:s3:::'
+        - !Ref Bucket
+        - '*'
+  - - 'arn:aws:s3:::*'

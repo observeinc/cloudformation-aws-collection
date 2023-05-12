@@ -517,7 +517,6 @@ Resources:
     DependsOn:
       - LambdaLogGroup
     Properties:
-      FunctionName: !Ref 'AWS::StackName'
       Handler: main
       Role: !GetAtt LambdaRole.Arn
       Environment:
