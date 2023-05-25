@@ -16,6 +16,7 @@ Metadata:
           - LambdaMemorySize
           - LambdaS3CustomRules
           - LambdaS3ReadAny
+          - LambdaSetToStackName
       - Label:
           default: Firehose Configuration
         Parameters:
@@ -169,6 +170,20 @@ Parameters:
     AllowedValues:
       - true
       - false
+  LambdaSetToStackName:
+    Type: String
+    Default: true
+    Description: >-
+      Set the lambda function name to match the stack name. This provides a
+      more memorable function name, but may cause issues if the stack name is
+      too long. You must disable this option if your stack name exceeds 64
+      characters.
+
+      This option must be set on install. Attempting to toggle the option and
+      then will result in an error.
+    AllowedValues:
+      - true
+      - false
   TrailEnableLogFileValidation:
     Type: String
     Default: false
@@ -262,6 +277,9 @@ Conditions:
   LambdaS3ReadAnyIsEnabled: !Equals
     - Ref: LambdaS3ReadAny
     - false
+  LambdaSetToStackNameIsEnabled: !Equals
+    - Ref: LambdaSetToStackName
+    - true
   InvokeSnapshotOnStart: !Equals
      - Ref: InvokeSnapshotOnStartEnabled
      - true
@@ -507,17 +525,15 @@ Resources:
   LambdaLogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
-      LogGroupName: !Join
-        - ''
-        - - /aws/lambda/
-          - !Ref 'AWS::StackName'
+      LogGroupName: !Sub '/aws/lambda/${Lambda}'
       RetentionInDays: !Ref LogGroupExpirationInDays
   Lambda:
     Type: 'AWS::Lambda::Function'
-    DependsOn:
-      - LambdaLogGroup
     Properties:
-      FunctionName: !Ref 'AWS::StackName'
+      FunctionName: !If
+        - LambdaSetToStackNameIsEnabled
+        - !Ref 'AWS::StackName'
+        - !Ref 'AWS::NoValue'
       Handler: main
       Role: !GetAtt LambdaRole.Arn
       Environment:
