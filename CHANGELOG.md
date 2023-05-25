@@ -8,8 +8,17 @@ All notable changes to this project will be documented in this file.
 
 
 <a name="v0.9.0"></a>
-## [v0.9.0] - 2023-05-01
+## [v0.9.0] - 2023-05-25
 
+- feat(collection): allow configuration of lambda name ([#21](https://github.com/observeinc/cloudformation-aws-collection/issues/21))
+- fix(collection): generate snapshot rule name ([#20](https://github.com/observeinc/cloudformation-aws-collection/issues/20))
+- feat(controltower): capture config snapshot on subscribe ([#19](https://github.com/observeinc/cloudformation-aws-collection/issues/19))
+- feat(controltower): allow configuration of logging verbosity ([#18](https://github.com/observeinc/cloudformation-aws-collection/issues/18))
+- fix(controltower): default to unreserved concurrent executions ([#15](https://github.com/observeinc/cloudformation-aws-collection/issues/15))
+- fix(controltower): rename SNS topic to match stack name ([#17](https://github.com/observeinc/cloudformation-aws-collection/issues/17))
+- fix(controltower): manage lambda log group ([#16](https://github.com/observeinc/cloudformation-aws-collection/issues/16))
+- feat(controltower): allow lambda to request delivery of config snapshot ([#14](https://github.com/observeinc/cloudformation-aws-collection/issues/14))
+- chore: update changelog
 - chore: Update Makefile and README for supporting control tower
 - feat: Add Central Logging Control Tower CF
 
