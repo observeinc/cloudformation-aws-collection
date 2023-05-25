@@ -685,10 +685,8 @@ Resources:
           RoleArn: !GetAtt EventBridgeRole.Arn
   EventBridgePeriodicSnapshot:
     Type: 'AWS::Events::Rule'
-    DependsOn:
-      - LambdaEventBridgePermission
     Properties:
-      Name: !Sub '${AWS::StackName}Snapshot'
+      Description: Trigger API snapshot
       ScheduleExpression: !Ref EventBridgeSnapshotSchedule
       Targets:
         - Id: ObserveLambda
@@ -704,8 +702,7 @@ Resources:
       Action: 'lambda:InvokeFunction'
       FunctionName: !Ref Lambda
       Principal: events.amazonaws.com
-      SourceArn: !Sub >-
-        arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:rule/${AWS::StackName}Snapshot
+      SourceArn: !GetAtt EventBridgePeriodicSnapshot.Arn
   Trail:
     Type: 'AWS::CloudTrail::Trail'
     Condition: TrailIsEnabled
