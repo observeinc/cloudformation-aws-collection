@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: Required parameters
+        Parameters:
+          - LambdaArn
+          - LambdaName
+Parameters:
+  LambdaArn:
+    Type: String
+    NoEcho: true
+    Description: lambdaarn
+    AllowedPattern: '\S+'
+    ConstraintDescription: 'Token cannot contain spaces'
+  LambdaName:
+    Type: String
+    NoEcho: true
+    Description: LambdaName
+    AllowedPattern: '\S+'
+    ConstraintDescription: 'Token cannot contain spaces'
+  EventBridgeSnapshotSchedule:
+    Type: String
+    Default: rate(1 hour)
+    Description: Schedule on which to trigger Lambda to snapshot API
+  EventBridgeSnapshotConfig:
+    Type: CommaDelimitedList
+    Default: >-
+      apigateway:Get*,autoscaling:Describe*,cloudformation:Describe*,cloudformation:List*,cloudfront:List*,dynamodb:Describe*,dynamodb:List*,ec2:Describe*,ecs:Describe*,ecs:List*,eks:Describe*,eks:List*,elasticache:Describe*,elasticbeanstalk:Describe*,elasticfilesystem:Describe*,elasticloadbalancing:Describe*,elasticmapreduce:Describe*,elasticmapreduce:List*,events:List*,firehose:Describe*,firehose:List*,iam:Get*,iam:List*,kinesis:Describe*,kinesis:List*,kms:Describe*,kms:List*,lambda:List*,logs:Describe*,organizations:Describe*,organizations:List*,rds:Describe*,redshift:Describe*,route53:List*,s3:GetBucket*,s3:List*,secretsmanager:List*,sns:Get*,sns:List*,sqs:Get*,sqs:List*,synthetics:Describe*,synthetics:List*
+    Description: List of API endpoints which get periodically scraped by Observe Lambda
+Resources:
+  EventBridgePeriodicSnapshot:
+    Type: 'AWS::Events::Rule'
+    DependsOn:
+      - LambdaEventBridgePermission
+    Properties:
+      Name: !Sub '${AWS::StackName}Snapshot'
+      ScheduleExpression: !Ref EventBridgeSnapshotSchedule
+      Targets:
+        - Id: ObserveLambda
+          Arn: !Ref LambdaArn
+          Input: !Sub
+            - '{ "snapshot": { "include": [ "${actions}" ] }}'
+            - actions: !Join
+                - '","'
+                - !Ref EventBridgeSnapshotConfig
+  LambdaEventBridgePermission:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref LambdaName
+      Principal: events.amazonaws.com
+      SourceArn: !Sub >-
+        arn:${AWS::Partition}:events:${AWS::Region}:${AWS::AccountId}:rule/${AWS::StackName}Snapshot
+  Snapshot:
+    Type: 'Custom::Invoke'
+    Properties:
+      ServiceToken: !Ref LambdaArn
+      Payload:
+        snapshot:
+          include: !Ref EventBridgeSnapshotConfig
