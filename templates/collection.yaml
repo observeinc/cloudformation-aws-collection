@@ -140,13 +140,13 @@ Parameters:
     Description: The number of simultaneous executions to reserve for the function. Set to -1 to not reserve concurrent executions.
   LambdaTimeout:
     Type: Number
-    Default: 60
+    Default: 120
     Description: >-
       The amount of time that Lambda allows a function to run before stopping
       it. The maximum allowed value is 900 seconds.
   LambdaMemorySize:
     Type: Number
-    Default: 128
+    Default: 256
     MinValue: 128
     MaxValue: 10240
     Description: >-
