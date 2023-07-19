@@ -69,7 +69,7 @@ Parameters:
       submitted to Observe.
   LambdaS3ReadAny:
     Type: String
-    Default: false
+    Default: 'false'
     Description: >-
       Grant the lambda S3 read only access to all buckets. This simplifies the
       process of subscribing new buckets to the lambda. The lambda function
