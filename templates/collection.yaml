@@ -512,16 +512,6 @@ Resources:
               - 'firehose:PutRecord'
               - 'firehose:PutRecordBatch'
             Resource: !GetAtt DeliveryStream.Arn
-  DeliveryStreamLogsSubscriptionFilter:
-    Type: 'AWS::Logs::SubscriptionFilter'
-    Condition: SubscriptionIsEnabled
-    DependsOn:
-      - DeliveryStreamPolicy
-    Properties:
-      DestinationArn: !GetAtt 'DeliveryStream.Arn'
-      FilterPattern: ''
-      LogGroupName: !Ref 'LambdaLogGroup'
-      RoleArn: !GetAtt 'CloudWatchLogsRole.Arn'
   LambdaLogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
