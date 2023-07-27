@@ -5,11 +5,16 @@ All notable changes to this project will be documented in this file.
 <a name="unreleased"></a>
 ## [Unreleased]
 
+- chore(readme): update description for InvokeSnapshotOnStartEnabled
+- fix: remove duplicate log subscription ([#25](https://github.com/observeinc/cloudformation-aws-collection/issues/25))
+- chore: run `cfn-lint` on templates ([#26](https://github.com/observeinc/cloudformation-aws-collection/issues/26))
+- fix(lambda): bump timeout and memory size based on failure data
 
 
 <a name="v0.9.0"></a>
 ## [v0.9.0] - 2023-05-25
 
+- chore: update CHANGELOG
 - feat(collection): allow configuration of lambda name ([#21](https://github.com/observeinc/cloudformation-aws-collection/issues/21))
 - fix(collection): generate snapshot rule name ([#20](https://github.com/observeinc/cloudformation-aws-collection/issues/20))
 - feat(controltower): capture config snapshot on subscribe ([#19](https://github.com/observeinc/cloudformation-aws-collection/issues/19))
