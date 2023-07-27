@@ -17,6 +17,7 @@ Metadata:
           - LambdaS3CustomRules
           - LambdaS3ReadAny
           - LambdaSetToStackName
+          - LambdaVerbosity
       - Label:
           default: Firehose Configuration
         Parameters:
@@ -170,6 +171,10 @@ Parameters:
     AllowedValues:
       - true
       - false
+  LambdaVerbosity:
+    Type: Number
+    Default: 3
+    Description: Logging verbosity for Lambda
   LambdaSetToStackName:
     Type: String
     Default: true
@@ -529,6 +534,7 @@ Resources:
         Variables:
           OBSERVE_URL: !Sub 'https://${ObserveCustomer}.collect.${ObserveDomain}/v1/http'
           OBSERVE_TOKEN: !Sub '${ObserveToken}'
+          VERBOSITY: !Sub '${LambdaVerbosity}'
           S3_CUSTOM_RULES: !If
             - HasLambdaS3CustomRules
             - !Ref 'LambdaS3CustomRules'
