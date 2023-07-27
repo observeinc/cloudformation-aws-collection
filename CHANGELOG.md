@@ -7,9 +7,20 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v0.10.0"></a>
+## [v0.10.0] - 2023-07-27
+
+- fix(collection): allow configuration of lambda log verbosity ([#29](https://github.com/observeinc/cloudformation-aws-collection/issues/29))
+- chore(readme): update description for InvokeSnapshotOnStartEnabled
+- fix: remove duplicate log subscription ([#25](https://github.com/observeinc/cloudformation-aws-collection/issues/25))
+- chore: run `cfn-lint` on templates ([#26](https://github.com/observeinc/cloudformation-aws-collection/issues/26))
+- fix(lambda): bump timeout and memory size based on failure data
+
+
 <a name="v0.9.0"></a>
 ## [v0.9.0] - 2023-05-25
 
+- chore: update CHANGELOG
 - feat(collection): allow configuration of lambda name ([#21](https://github.com/observeinc/cloudformation-aws-collection/issues/21))
 - fix(collection): generate snapshot rule name ([#20](https://github.com/observeinc/cloudformation-aws-collection/issues/20))
 - feat(controltower): capture config snapshot on subscribe ([#19](https://github.com/observeinc/cloudformation-aws-collection/issues/19))
@@ -93,7 +104,8 @@ All notable changes to this project will be documented in this file.
 - first commit
 
 
-[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.9.0...HEAD
+[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.10.0...HEAD
+[v0.10.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.9.0...v0.10.0
 [v0.9.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.8.0...v0.9.0
 [v0.8.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.7.0...v0.8.0
 [v0.7.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.6.0...v0.7.0
