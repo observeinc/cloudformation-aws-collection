@@ -238,8 +238,7 @@ Parameters:
     Type: String
     Default: true
     Description: >-
-      Toggle invocation of snapshot from Cloudformation. This can be useful for
-      debug purposes if the lambda fails to complete successfully.
+      Toggle invocation of snapshot from Cloudformation.
     AllowedValues:
       - true
       - false
