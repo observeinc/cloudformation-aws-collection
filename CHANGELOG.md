@@ -7,9 +7,16 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v0.11.0"></a>
+## [v0.11.0] - 2023-07-28
+
+- fix(default-services): remove services from the default list refs: OB-21129 ([#27](https://github.com/observeinc/cloudformation-aws-collection/issues/27))
+
+
 <a name="v0.10.0"></a>
 ## [v0.10.0] - 2023-07-27
 
+- chore: update CHANGELOG ([#30](https://github.com/observeinc/cloudformation-aws-collection/issues/30))
 - fix(collection): allow configuration of lambda log verbosity ([#29](https://github.com/observeinc/cloudformation-aws-collection/issues/29))
 - chore(readme): update description for InvokeSnapshotOnStartEnabled
 - fix: remove duplicate log subscription ([#25](https://github.com/observeinc/cloudformation-aws-collection/issues/25))
@@ -104,7 +111,8 @@ All notable changes to this project will be documented in this file.
 - first commit
 
 
-[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.11.0...HEAD
+[v0.11.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.10.0...v0.11.0
 [v0.10.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.9.0...v0.10.0
 [v0.9.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.8.0...v0.9.0
 [v0.8.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.7.0...v0.8.0
