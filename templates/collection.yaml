@@ -174,7 +174,8 @@ Parameters:
   LambdaVerbosity:
     Type: Number
     Default: 3
-    Description: Logging verbosity for Lambda
+    Description: >-
+      Logging verbosity for Lambda. 6 is full debug logging, including snapshot progress logging
   LambdaSetToStackName:
     Type: String
     Default: true
