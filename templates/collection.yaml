@@ -519,15 +519,26 @@ Resources:
   LambdaLogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
-      LogGroupName: !Sub '/aws/lambda/${Lambda}'
+      LogGroupName: !Sub
+        - '/aws/lambda/${LambdaName}'
+        - LambdaName: !If
+            - LambdaSetToStackNameIsEnabled
+            - !Ref 'AWS::StackName'
+            - !Join
+                - ''
+                - - !Select [ 0, !Split [ 'LambdaRole', !Sub '${LambdaRole}' ] ]
+                  - 'Lambda'
+                  - !Select [ 1, !Split [ 'LambdaRole', !Sub '${LambdaRole}' ] ]
       RetentionInDays: !Ref LogGroupExpirationInDays
   Lambda:
     Type: 'AWS::Lambda::Function'
+    DependsOn:
+        - LambdaLogGroup
     Properties:
       FunctionName: !If
         - LambdaSetToStackNameIsEnabled
         - !Ref 'AWS::StackName'
-        - !Ref 'AWS::NoValue'
+        - !Select [ 3, !Split ['/', !Sub '${LambdaLogGroup}'] ]
       Handler: main
       Role: !GetAtt LambdaRole.Arn
       Environment:
