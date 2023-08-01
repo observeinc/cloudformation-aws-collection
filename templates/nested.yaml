@@ -1,0 +1,34 @@
+# export OBSERVE_CUSTOMER=xxx
+# export OBSERVE_TOKEN=xxx
+# export OBSERVE_DOMAIN=observe-eng.com
+# export STACK_NAME=$USER-nested-stack
+# aws cloudformation create-stack --stack-name $STACK_NAME \
+# --template-body file://nested.yaml \
+# --parameters ParameterKey=ObserveCustomer,ParameterValue=$OBSERVE_CUSTOMER ParameterKey=ObserveToken,ParameterValue=$OBSERVE_TOKEN ParameterKey=ObserveDomain,ParameterValue=$OBSERVE_DOMAIN \
+# --capabilities CAPABILITY_IAM
+
+Parameters:
+  ObserveCustomer:
+    Type: String
+  ObserveToken:
+    Type: String
+  ObserveDomain:
+    Type: String
+Resources:
+  ObserveCollectionStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: "https://observeinc.s3-us-west-2.amazonaws.com/cloudformation/collection-latest.yaml"
+      Parameters:
+        ObserveCustomer: !Ref ObserveCustomer
+        ObserveToken: !Ref ObserveToken
+        ObserveDomain: !Ref ObserveDomain
+        SubscriptionEnabled: false
+  ObserveLogsStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: 'https://observeinc.s3-us-west-2.amazonaws.com/cloudformation/subscribelogs-latest.yaml'
+      Parameters:
+        CollectionStackName: "not_applicable"
+        DestinationArnOverride: !GetAtt ObserveCollectionStack.Outputs.FirehoseARN
+        DeliveryStreamRoleArnOverride: !GetAtt ObserveCollectionStack.Outputs.CloudWatchLogsRole
