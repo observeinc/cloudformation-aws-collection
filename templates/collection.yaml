@@ -538,7 +538,7 @@ Resources:
       FunctionName: !If
         - LambdaSetToStackNameIsEnabled
         - !Ref 'AWS::StackName'
-        - !Select [ 3, !Split ['/', !Sub '${LambdaLogGroup}'] ]
+        - !Select [ 3, !Split [ '/', !Sub '${LambdaLogGroup}' ] ]
       Handler: main
       Role: !GetAtt LambdaRole.Arn
       Environment:
