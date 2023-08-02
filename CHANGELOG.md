@@ -7,9 +7,17 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v0.12.0"></a>
+## [v0.12.0] - 2023-08-02
+
+- chore(collection): improve description of the LambdaVerbosity parameter ([#33](https://github.com/observeinc/cloudformation-aws-collection/issues/33))
+- fix: make sure lambda log group is successfully deleted on rollback ([#32](https://github.com/observeinc/cloudformation-aws-collection/issues/32))
+
+
 <a name="v0.11.0"></a>
 ## [v0.11.0] - 2023-07-28
 
+- chore: update CHANGELOG
 - fix(default-services): remove services from the default list refs: OB-21129 ([#27](https://github.com/observeinc/cloudformation-aws-collection/issues/27))
 
 
@@ -111,7 +119,8 @@ All notable changes to this project will be documented in this file.
 - first commit
 
 
-[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.12.0...HEAD
+[v0.12.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.11.0...v0.12.0
 [v0.11.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.10.0...v0.11.0
 [v0.10.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.9.0...v0.10.0
 [v0.9.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.8.0...v0.9.0
