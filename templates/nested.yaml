@@ -32,3 +32,4 @@ Resources:
         CollectionStackName: "not_applicable"
         DestinationArnOverride: !GetAtt ObserveCollectionStack.Outputs.FirehoseARN
         DeliveryStreamRoleArnOverride: !GetAtt ObserveCollectionStack.Outputs.CloudWatchLogsRole
+        FilterName: !Ref 'AWS::StackName'
