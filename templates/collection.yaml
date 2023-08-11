@@ -129,7 +129,7 @@ Parameters:
   EventBridgeSnapshotConfig:
     Type: CommaDelimitedList
     Default: >-
-      autoscaling:Describe*,cloudformation:Describe*,cloudformation:List*,cloudfront:List*,dynamodb:Describe*,dynamodb:List*,ec2:Describe*,ecs:Describe*,ecs:List*,eks:Describe*,eks:List*,elasticache:Describe*,elasticbeanstalk:Describe*,elasticloadbalancing:Describe*,events:List*,firehose:Describe*,firehose:List*,iam:Get*,iam:List*,kinesis:Describe*,kinesis:List*,lambda:List*,logs:Describe*,rds:Describe*,route53:List*,s3:GetBucket*,s3:List*,sns:Get*,sns:List*,sqs:Get*,sqs:List*
+      autoscaling:Describe*,cloudformation:Describe*,cloudformation:List*,cloudfront:List*,dynamodb:Describe*,dynamodb:List*,ec2:Describe*,ecs:Describe*,ecs:List*,eks:Describe*,eks:List*,elasticache:Describe*,elasticbeanstalk:Describe*,elasticloadbalancing:Describe*,events:List*,firehose:Describe*,firehose:List*,iam:Get*,iam:List*,kinesis:Describe*,kinesis:List*,lambda:List*,logs:Describe*,organizations:List*,rds:Describe*,route53:List*,s3:GetBucket*,s3:List*,sns:Get*,sns:List*,sqs:Get*,sqs:List*
     Description: List of API endpoints which get periodically scraped by Observe Lambda
   LambdaVersion:
     Type: String
