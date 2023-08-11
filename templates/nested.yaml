@@ -24,6 +24,8 @@ Resources:
         ObserveToken: !Ref ObserveToken
         ObserveDomain: !Ref ObserveDomain
         SubscriptionEnabled: false
+        EventBridgeSnapshotConfig: >-
+          ec2:Describe*,ecs:Describe*,ecs:List*,eks:Describe*,eks:List*,events:List*,iam:Get*,iam:List*,lambda:List*,logs:Describe*,rds:Describe*,s3:GetBucket*,s3:List*
   ObserveLogsStack:
     Type: AWS::CloudFormation::Stack
     Properties:
