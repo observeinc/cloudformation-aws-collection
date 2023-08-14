@@ -7,9 +7,16 @@ All notable changes to this project will be documented in this file.
 
 
 
+<a name="v0.13.0"></a>
+## [v0.13.0] - 2023-08-14
+
+- fix(collection): add organizations:List* back to snapshot ([#34](https://github.com/observeinc/cloudformation-aws-collection/issues/34))
+
+
 <a name="v0.12.0"></a>
 ## [v0.12.0] - 2023-08-02
 
+- chore: update changelog
 - chore(collection): improve description of the LambdaVerbosity parameter ([#33](https://github.com/observeinc/cloudformation-aws-collection/issues/33))
 - fix: make sure lambda log group is successfully deleted on rollback ([#32](https://github.com/observeinc/cloudformation-aws-collection/issues/32))
 
@@ -119,7 +126,8 @@ All notable changes to this project will be documented in this file.
 - first commit
 
 
-[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.13.0...HEAD
+[v0.13.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.12.0...v0.13.0
 [v0.12.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.11.0...v0.12.0
 [v0.11.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.10.0...v0.11.0
 [v0.10.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.9.0...v0.10.0
