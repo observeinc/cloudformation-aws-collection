@@ -14,6 +14,19 @@ Parameters:
     Type: String
   ObserveDomain:
     Type: String
+  LogGroupMatches:
+    Type: "String"
+    Default: ".*"
+    Description: >-
+      A comma-separated list of regex patterns. If a Log Group fully matches any regex pattern in the list,
+      it will be subscribed to. By "fully matches", we mean that the
+      entire log group name must match a pattern.
+  LogGroupExcludes:
+    Type: "String"
+    Default: ""
+    Description: >-
+      A list of regex patterns. If a Log Group fully matches any regex pattern in the list, it will
+      not be subscribed to. LogGroupExcludes takes precedence over LogGroupMatches.
 Resources:
   ObserveCollectionStack:
     Type: AWS::CloudFormation::Stack
@@ -35,3 +48,5 @@ Resources:
         DestinationArnOverride: !GetAtt ObserveCollectionStack.Outputs.FirehoseARN
         DeliveryStreamRoleArnOverride: !GetAtt ObserveCollectionStack.Outputs.CloudWatchLogsRole
         FilterName: !Ref 'AWS::StackName'
+        LogGroupMatches: !Ref LogGroupMatches
+        LogGroupExcludes: !Ref LogGroupExcludes
