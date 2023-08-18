@@ -129,7 +129,7 @@ Parameters:
   EventBridgeSnapshotConfig:
     Type: CommaDelimitedList
     Default: >-
-      ec2:Describe*,ecs:Describe*,ecs:List*,eks:Describe*,eks:List*,events:List*,iam:Get*,iam:List*,lambda:List*,logs:Describe*,rds:Describe*,s3:GetBucket*,s3:List*
+      ec2:Describe*,ecs:Describe*,ecs:List*,eks:Describe*,eks:List*,events:List*,firehose:Describe*,firehose:List*,iam:Get*,iam:List*,lambda:List*,logs:Describe*,rds:Describe*,s3:GetBucket*,s3:List*
     Description: List of API endpoints which get periodically scraped by Observe Lambda
   LambdaVersion:
     Type: String
