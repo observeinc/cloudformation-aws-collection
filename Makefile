@@ -1,24 +1,25 @@
 S3_CP_ARGS=aws s3 cp --acl public-read
+RELEASE_VERSION?=
+
+S3_BUCKET_PATH=s3://obs-colin/cloudformation/
+S3_EXISTING_VERSIONS=$(shell aws s3 ls $(S3_BUCKET_PATH) | grep $(RELEASE_VERSION) | wc -l)
 
 .PHONY: cloudformation
 cloudformation:
-	$(S3_CP_ARGS) templates/collection.yaml s3://observeinc/cloudformation/collection-`semtag final -s minor -o`.yaml
-	$(S3_CP_ARGS) templates/collection.yaml s3://observeinc/cloudformation/collection-latest.yaml
-	$(S3_CP_ARGS) templates/config.yaml s3://observeinc/cloudformation/config-`semtag final -s minor -o`.yaml
-	$(S3_CP_ARGS) templates/config.yaml s3://observeinc/cloudformation/config-latest.yaml
-	$(S3_CP_ARGS) templates/cwmetricsstream.yaml s3://observeinc/cloudformation/cwmetricsstream-`semtag final -s minor -o`.yaml
-	$(S3_CP_ARGS) templates/cwmetricsstream.yaml s3://observeinc/cloudformation/cwmetricsstream-latest.yaml
-	$(S3_CP_ARGS) templates/quicksetup.yaml s3://observeinc/cloudformation/quicksetup-`semtag final -s minor -o`.yaml
-	$(S3_CP_ARGS) templates/quicksetup.yaml s3://observeinc/cloudformation/quicksetup-latest.yaml
-	$(S3_CP_ARGS) templates/vpc.yaml s3://observeinc/cloudformation/vpc-`semtag final -s minor -o`.yaml
-	$(S3_CP_ARGS) templates/vpc.yaml s3://observeinc/cloudformation/vpc-latest.yaml
-	$(S3_CP_ARGS) templates/controltower.yaml s3://observeinc/cloudformation/controltower-`semtag final -s minor -o`.yaml
-	$(S3_CP_ARGS) templates/controltower.yaml s3://observeinc/cloudformation/controltower-latest.yaml
-
-.PHONY: changelog
-changelog:
-	git-chglog -o CHANGELOG.md --next-tag `semtag final -s minor -o`
+	for file in templates/*.yaml ; do \
+		$(S3_CP_ARGS) $$file $(S3_BUCKET_PATH)`basename $$file .yaml`-$(RELEASE_VERSION).yaml ; \
+		$(S3_CP_ARGS) $$file $(S3_BUCKET_PATH)`basename $$file .yaml`-latest.yaml ; \
+	done
 
 .PHONY: release
-release: cloudformation
-	semtag final -s minor
+release: check_release_version check_existing_version cloudformation
+
+check_release_version:
+ifndef RELEASE_VERSION
+	$(error RELEASE_VERSION is not set or empty for release)
+endif
+
+check_existing_version:
+ifneq ($(S3_EXISTING_VERSIONS),0)
+	$(error A release with version $(RELEASE_VERSION) already exists in S3)
+endif
