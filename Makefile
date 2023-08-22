@@ -1,7 +1,7 @@
 S3_CP_ARGS=aws s3 cp --acl public-read
 RELEASE_VERSION?=
 
-S3_BUCKET_PATH=s3://obs-colin/cloudformation/
+S3_BUCKET_PATH=s3://observe/cloudformation/
 S3_EXISTING_VERSIONS=$(shell aws s3 ls $(S3_BUCKET_PATH) | grep $(RELEASE_VERSION) | wc -l)
 
 .PHONY: cloudformation
