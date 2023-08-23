@@ -1,7 +1,7 @@
 S3_CP_ARGS=aws s3 cp --acl public-read
 RELEASE_VERSION?=
 
-S3_BUCKET_PATH=s3://observe/cloudformation/
+S3_BUCKET_PATH=s3://obs-colin/cloudformation/
 
 .PHONY: copy_s3
 copy_s3:
@@ -19,7 +19,7 @@ ifndef RELEASE_VERSION
 endif
 
 check_existing_version:
-	@status=$$(aws s3api head-object --bucket observe --key cloudformation/$$(basename templates/*.yaml .yaml)-$(RELEASE_VERSION).yaml >/dev/null 2>&1 ; echo $$?); \
+	@status=$$(aws s3api head-object --bucket obs-colin --key cloudformation/$$(basename templates/*.yaml .yaml)-$(RELEASE_VERSION).yaml >/dev/null 2>&1 ; echo $$?); \
 	if [ "$$status" = "0" ]; then \
 		$(error A release with version $(RELEASE_VERSION) already exists in S3) \
 	elif [ "$$status" != "254" ] && [ "$$status" != "0" ]; then \
