@@ -1,12 +1,3 @@
-# export OBSERVE_CUSTOMER=xxx
-# export OBSERVE_TOKEN=xxx
-# export OBSERVE_DOMAIN=observe-eng.com
-# export STACK_NAME=$USER-nested-stack
-# aws cloudformation create-stack --stack-name $STACK_NAME \
-# --template-body file://nested.yaml \
-# --parameters ParameterKey=ObserveCustomer,ParameterValue=$OBSERVE_CUSTOMER ParameterKey=ObserveToken,ParameterValue=$OBSERVE_TOKEN ParameterKey=ObserveDomain,ParameterValue=$OBSERVE_DOMAIN \
-# --capabilities CAPABILITY_IAM
-
 Parameters:
   ObserveCustomer:
     Type: String
