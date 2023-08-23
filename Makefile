@@ -2,17 +2,16 @@ S3_CP_ARGS=aws s3 cp --acl public-read
 RELEASE_VERSION?=
 
 S3_BUCKET_PATH=s3://observe/cloudformation/
-S3_EXISTING_VERSIONS=$(shell aws s3 ls $(S3_BUCKET_PATH) | grep $(RELEASE_VERSION) | wc -l)
 
-.PHONY: cloudformation
-cloudformation:
+.PHONY: copy_s3
+copy_s3:
 	for file in templates/*.yaml ; do \
-		$(S3_CP_ARGS) $$file $(S3_BUCKET_PATH)`basename $$file .yaml`-$(RELEASE_VERSION).yaml ; \
-		$(S3_CP_ARGS) $$file $(S3_BUCKET_PATH)`basename $$file .yaml`-latest.yaml ; \
+		$(S3_CP_ARGS) $$file $(S3_BUCKET_PATH)$$(basename $$file .yaml)-$(RELEASE_VERSION).yaml ; \
+		$(S3_CP_ARGS) $$file $(S3_BUCKET_PATH)$$(basename $$file .yaml)-latest.yaml ; \
 	done
 
 .PHONY: release
-release: check_release_version check_existing_version cloudformation
+release: check_release_version check_existing_version copy_s3
 
 check_release_version:
 ifndef RELEASE_VERSION
@@ -20,6 +19,9 @@ ifndef RELEASE_VERSION
 endif
 
 check_existing_version:
-ifneq ($(S3_EXISTING_VERSIONS),0)
-	$(error A release with version $(RELEASE_VERSION) already exists in S3)
-endif
+	@status=$$(aws s3api head-object --bucket observe --key cloudformation/$$(basename templates/*.yaml .yaml)-$(RELEASE_VERSION).yaml >/dev/null 2>&1 ; echo $$?); \
+	if [ "$$status" = "0" ]; then \
+		$(error A release with version $(RELEASE_VERSION) already exists in S3) \
+	elif [ "$$status" != "254" ] && [ "$$status" != "0" ]; then \
+		$(error API or credential error while checking existence in S3) \
+	fi
