@@ -27,7 +27,7 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
     condition {
       test     = "StringLike"
       variable = "${local.oidc_claim_prefix}:sub"
-      values = ["repo:${local.organization}/${local.repository}:*"]
+      values   = ["repo:${local.organization}/${local.repository}:*"]
     }
 
     condition {
@@ -43,6 +43,8 @@ data "aws_iam_policy_document" "bucket_write" {
     actions = [
       "s3:GetObject",
       "s3:PutObject",
+      "s3:PutObjectAcl",
+      "s3:HeadObject"
     ]
 
     resources = [
@@ -59,18 +61,18 @@ data "aws_iam_policy_document" "bucket_write" {
 resource "aws_iam_role" "github_actions_release" {
   name = "${local.repository}-gha-release"
 
-  inline_policy {
-    name   = "github-actions-s3-write"
-    policy = data.aws_iam_policy_document.bucket_write.json
-  }
-
-  managed_policy_arns = []
-  assume_role_policy  = data.aws_iam_policy_document.github_actions_assume_role.json
+  assume_role_policy = data.aws_iam_policy_document.github_actions_assume_role.json
 
   tags = {
     Principal  = "GitHub Actions"
     Repository = "${local.organization}/${local.repository}"
   }
+}
+
+resource "aws_iam_role_policy" "github_actions_s3_write_inline" {
+  name   = "GitHubActionsS3WritePolicy"
+  role   = aws_iam_role.github_actions_release.id
+  policy = data.aws_iam_policy_document.bucket_write.json
 }
 
 resource "github_actions_variable" "aws_release_role" {

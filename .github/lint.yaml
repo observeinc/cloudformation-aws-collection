@@ -1,0 +1,15 @@
+name: Lint
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: scottbrenner/cfn-lint-action@v2
+      - run: cfn-lint -t templates/*
