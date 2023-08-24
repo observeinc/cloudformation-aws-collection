@@ -1,6 +1,6 @@
 S3_CP_ARGS=aws s3 cp --acl public-read
 RELEASE_VERSION?=
-BUCKET_NAME=observe-chutchinson
+BUCKET_NAME=observeinc
 
 S3_BUCKET_PATH=s3://$(BUCKET_NAME)/cloudformation/
 

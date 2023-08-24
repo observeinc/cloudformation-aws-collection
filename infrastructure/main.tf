@@ -1,5 +1,5 @@
 locals {
-  organization = "hutchic-observe-meta"
+  organization = "observeinc"
   repository   = "cloudformation-aws-collection"
 }
 
@@ -8,7 +8,7 @@ data "aws_iam_openid_connect_provider" "github_actions" {
 }
 
 data "aws_s3_bucket" "cloudformation_bucket" {
-  bucket = "observe-chutchinson"
+  bucket = "observeinc"
 }
 
 locals {
