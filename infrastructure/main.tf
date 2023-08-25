@@ -76,7 +76,7 @@ resource "aws_iam_role_policy" "github_actions_s3_write_inline" {
 }
 
 resource "github_actions_variable" "aws_release_role" {
-  repository = "${local.repository}"
+  repository = local.repository
 
   variable_name = "AWS_ROLE_ARN"
   value         = aws_iam_role.github_actions_release.arn
