@@ -5,6 +5,8 @@ Parameters:
     Type: String
   ObserveDomain:
     Type: String
+    Default: observeinc.com
+    Description: Observe domain to submit data to
   LogGroupMatches:
     Type: "String"
     Default: ".*"
