@@ -60,7 +60,7 @@ terraform destroy
   
 - Creates an IAM role with permissions that allow GitHub Actions to release CloudFormation templates to the specified S3 bucket.
 
-- Configures GitHub Actions variables in the repository with the ARN of the IAM role so that it can be used in the release workflow.
+- Configures GitHub Actions variables in the repository with the ARN of the IAM role so that it can be used.
 
 ### S3 Bucket Management
 
