@@ -1,3 +1,7 @@
+terraform {
+  required_version = "~> 1.5"
+}
+
 locals {
   organization = "observeinc"
   repository   = "cloudformation-aws-collection"
@@ -5,10 +9,6 @@ locals {
 
 data "aws_iam_openid_connect_provider" "github_actions" {
   url = "https://token.actions.githubusercontent.com"
-}
-
-data "aws_s3_bucket" "cloudformation_bucket" {
-  bucket = "observeinc"
 }
 
 locals {
@@ -38,28 +38,8 @@ data "aws_iam_policy_document" "github_actions_assume_role" {
   }
 }
 
-data "aws_iam_policy_document" "bucket_write" {
-  statement {
-    actions = [
-      "s3:GetObject",
-      "s3:PutObject",
-      "s3:PutObjectAcl",
-      "s3:HeadObject"
-    ]
-
-    resources = [
-      "${data.aws_s3_bucket.cloudformation_bucket.arn}/cloudformation/*"
-    ]
-  }
-
-  statement {
-    actions   = ["s3:ListBucket"]
-    resources = [data.aws_s3_bucket.cloudformation_bucket.arn]
-  }
-}
-
-resource "aws_iam_role" "github_actions_release" {
-  name = "${local.repository}-gha-release"
+resource "aws_iam_role" "github_actions_ci" {
+  name = "${local.repository}-gha-ci"
 
   assume_role_policy = data.aws_iam_policy_document.github_actions_assume_role.json
 
@@ -69,15 +49,13 @@ resource "aws_iam_role" "github_actions_release" {
   }
 }
 
-resource "aws_iam_role_policy" "github_actions_s3_write_inline" {
-  name   = "GitHubActionsS3WritePolicy"
-  role   = aws_iam_role.github_actions_release.id
-  policy = data.aws_iam_policy_document.bucket_write.json
+resource "aws_iam_role_policy_attachment" "admin_policy_attachment" {
+  role       = aws_iam_role.github_actions_ci.name
+  policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 
-resource "github_actions_variable" "aws_release_role" {
-  repository = local.repository
-
-  variable_name = "AWS_ROLE_ARN"
-  value         = aws_iam_role.github_actions_release.arn
+resource "github_actions_secret" "aws_ci_role" {
+  repository      = local.repository
+  secret_name     = "AWS_ROLE_ARN"
+  plaintext_value = aws_iam_role.github_actions_ci.arn
 }
