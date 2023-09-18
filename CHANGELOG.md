@@ -1,141 +1,54 @@
-# Change Log
-
-All notable changes to this project will be documented in this file.
-
-<a name="unreleased"></a>
-## [Unreleased]
+# [0.14.0](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.13.0...v0.14.0) (2023-09-18)
 
 
+### Bug Fixes
 
-<a name="v0.13.0"></a>
-## [v0.13.0] - 2023-08-14
-
-- fix(collection): add organizations:List* back to snapshot ([#34](https://github.com/observeinc/cloudformation-aws-collection/issues/34))
+* **terraform:** forgot to configure the backend ([#37](https://github.com/observeinc/cloudformation-aws-collection/issues/37)) ([d1faaf5](https://github.com/observeinc/cloudformation-aws-collection/commit/d1faaf53689add19aa039a84f920d98a0f534769))
 
 
-<a name="v0.12.0"></a>
-## [v0.12.0] - 2023-08-02
+### Features
 
-- chore: update changelog
-- chore(collection): improve description of the LambdaVerbosity parameter ([#33](https://github.com/observeinc/cloudformation-aws-collection/issues/33))
-- fix: make sure lambda log group is successfully deleted on rollback ([#32](https://github.com/observeinc/cloudformation-aws-collection/issues/32))
-
-
-<a name="v0.11.0"></a>
-## [v0.11.0] - 2023-07-28
-
-- chore: update CHANGELOG
-- fix(default-services): remove services from the default list refs: OB-21129 ([#27](https://github.com/observeinc/cloudformation-aws-collection/issues/27))
+* gha releases ([#35](https://github.com/observeinc/cloudformation-aws-collection/issues/35)) ([c4f14f1](https://github.com/observeinc/cloudformation-aws-collection/commit/c4f14f1261b62c321751fd3c6fa6c8a998ff49b2))
+* remove sns/sqs from snapshot defaults ([#40](https://github.com/observeinc/cloudformation-aws-collection/issues/40)) ([f735644](https://github.com/observeinc/cloudformation-aws-collection/commit/f7356449bc5dd32d483e19f729c3bfe3066eb510))
+* **spec-tests:** introduce aws spec tests ([#39](https://github.com/observeinc/cloudformation-aws-collection/issues/39)) ([ca54dda](https://github.com/observeinc/cloudformation-aws-collection/commit/ca54dda7bf4d581805cd0e8f6c081891a1dd3c67))
 
 
-<a name="v0.10.0"></a>
-## [v0.10.0] - 2023-07-27
 
-- chore: update CHANGELOG ([#30](https://github.com/observeinc/cloudformation-aws-collection/issues/30))
-- fix(collection): allow configuration of lambda log verbosity ([#29](https://github.com/observeinc/cloudformation-aws-collection/issues/29))
-- chore(readme): update description for InvokeSnapshotOnStartEnabled
-- fix: remove duplicate log subscription ([#25](https://github.com/observeinc/cloudformation-aws-collection/issues/25))
-- chore: run `cfn-lint` on templates ([#26](https://github.com/observeinc/cloudformation-aws-collection/issues/26))
-- fix(lambda): bump timeout and memory size based on failure data
+# [0.13.0](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.12.0...v0.13.0) (2023-08-14)
 
 
-<a name="v0.9.0"></a>
-## [v0.9.0] - 2023-05-25
+### Bug Fixes
 
-- chore: update CHANGELOG
-- feat(collection): allow configuration of lambda name ([#21](https://github.com/observeinc/cloudformation-aws-collection/issues/21))
-- fix(collection): generate snapshot rule name ([#20](https://github.com/observeinc/cloudformation-aws-collection/issues/20))
-- feat(controltower): capture config snapshot on subscribe ([#19](https://github.com/observeinc/cloudformation-aws-collection/issues/19))
-- feat(controltower): allow configuration of logging verbosity ([#18](https://github.com/observeinc/cloudformation-aws-collection/issues/18))
-- fix(controltower): default to unreserved concurrent executions ([#15](https://github.com/observeinc/cloudformation-aws-collection/issues/15))
-- fix(controltower): rename SNS topic to match stack name ([#17](https://github.com/observeinc/cloudformation-aws-collection/issues/17))
-- fix(controltower): manage lambda log group ([#16](https://github.com/observeinc/cloudformation-aws-collection/issues/16))
-- feat(controltower): allow lambda to request delivery of config snapshot ([#14](https://github.com/observeinc/cloudformation-aws-collection/issues/14))
-- chore: update changelog
-- chore: Update Makefile and README for supporting control tower
-- feat: Add Central Logging Control Tower CF
-
-### 
-
-* Lambda Accepts Event Snapshot Sigal for S3 Buckets and egresses related data to Observe collectors
-* Create SNS +Policy for Lambda and S3 signals
-* `LambdaS3ReadAny` for broad bucket access.
-* Requires ManagedResourcePrefix from ControlTower Baseline
+* **collection:** add organizations:List* back to snapshot ([#34](https://github.com/observeinc/cloudformation-aws-collection/issues/34)) ([6a900c5](https://github.com/observeinc/cloudformation-aws-collection/commit/6a900c501bbf4a9aa179a4ebaac417ea90a402ad))
 
 
-<a name="v0.8.0"></a>
-## [v0.8.0] - 2023-04-19
 
-- chore: update CHANGELOG
-- fix: adjust bucket ownership to allow ACLs ([#12](https://github.com/observeinc/cloudformation-aws-collection/issues/12))
-- feat: add Cloudwatch Metrics pull example ([#9](https://github.com/observeinc/cloudformation-aws-collection/issues/9))
-- perf: exclude some cloudtrail events from eventbridge rules ([#10](https://github.com/observeinc/cloudformation-aws-collection/issues/10))
-- chore: update changelog
+# [0.12.0](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.11.0...v0.12.0) (2023-08-02)
 
 
-<a name="v0.7.0"></a>
-## [v0.7.0] - 2023-03-31
+### Bug Fixes
 
-- feat: metric stream disable ([#8](https://github.com/observeinc/cloudformation-aws-collection/issues/8))
-- feat: parameter to disable metric stream ([#8](https://github.com/observeinc/cloudformation-aws-collection/issues/8))
+* make sure lambda log group is successfully deleted on rollback ([#32](https://github.com/observeinc/cloudformation-aws-collection/issues/32)) ([e5b8b99](https://github.com/observeinc/cloudformation-aws-collection/commit/e5b8b99ace7e3b1d8507d5953f3fdf8e6d6e0aeb)), closes [#21](https://github.com/observeinc/cloudformation-aws-collection/issues/21) [#21](https://github.com/observeinc/cloudformation-aws-collection/issues/21)
 
 
-<a name="v0.6.0"></a>
-## [v0.6.0] - 2023-03-13
 
-- chore: update changelog
-- feat: enable log delivery to S3 via canned ACL ([#7](https://github.com/observeinc/cloudformation-aws-collection/issues/7))
+# [0.11.0](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.10.0...v0.11.0) (2023-07-28)
 
 
-<a name="v0.5.0"></a>
-## [v0.5.0] - 2023-02-13
+### Bug Fixes
 
-- chore: update changelog
-- fix: Add cloudformation:List to the default parameter value of EventBridgeSnapshotConfig.
-- make: extra s3 args, add `--acl public-read` ([#5](https://github.com/observeinc/cloudformation-aws-collection/issues/5))
-- chore: update changelog
+* **default-services:** remove services from the default list refs: OB-21129 ([#27](https://github.com/observeinc/cloudformation-aws-collection/issues/27)) ([9856ea7](https://github.com/observeinc/cloudformation-aws-collection/commit/9856ea7f9bea88f6c96f9f778da5d3917aaccb96))
 
 
-<a name="v0.4.0"></a>
-## [v0.4.0] - 2023-01-10
 
-- fix: support empty param TrailHasExcludeManagementEventSources ([#4](https://github.com/observeinc/cloudformation-aws-collection/issues/4))
-- feat: parameter to exclude kms/rds cloudtrail events ([#3](https://github.com/observeinc/cloudformation-aws-collection/issues/3))
-- chore: fill in readme
-- feat: add -latest.yaml manifests ([#2](https://github.com/observeinc/cloudformation-aws-collection/issues/2))
+# [0.10.0](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.9.0...v0.10.0) (2023-07-27)
 
 
-<a name="v0.3.0"></a>
-## [v0.3.0] - 2022-10-19
+### Bug Fixes
 
-- chore: update changelog
-- fix: update manifests to latest version
-
-
-<a name="v0.2.0"></a>
-## [v0.2.0] - 2022-10-14
-
-- chore: update changelog
-- fix: add changelog config
+* **collection:** allow configuration of lambda log verbosity ([#29](https://github.com/observeinc/cloudformation-aws-collection/issues/29)) ([269db50](https://github.com/observeinc/cloudformation-aws-collection/commit/269db50e0641a510a26af8bbeff0a124dd22069c))
+* **lambda:** bump timeout and memory size based on failure data ([841be86](https://github.com/observeinc/cloudformation-aws-collection/commit/841be865e9190c947aea19c8982541c6acade307))
+* remove duplicate log subscription ([#25](https://github.com/observeinc/cloudformation-aws-collection/issues/25)) ([49ceddb](https://github.com/observeinc/cloudformation-aws-collection/commit/49ceddbaa85682eabb77c518b88785abda157d8b))
 
 
-<a name="v0.1.0"></a>
-## v0.1.0 - 2022-10-14
 
-- feat: initial version-able templates
-- first commit
-
-
-[Unreleased]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.13.0...HEAD
-[v0.13.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.12.0...v0.13.0
-[v0.12.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.11.0...v0.12.0
-[v0.11.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.10.0...v0.11.0
-[v0.10.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.9.0...v0.10.0
-[v0.9.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.8.0...v0.9.0
-[v0.8.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.7.0...v0.8.0
-[v0.7.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.6.0...v0.7.0
-[v0.6.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.5.0...v0.6.0
-[v0.5.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.4.0...v0.5.0
-[v0.4.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.3.0...v0.4.0
-[v0.3.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.2.0...v0.3.0
-[v0.2.0]: https://github.com/observeinc/cloudformation-aws-collection/compare/v0.1.0...v0.2.0
