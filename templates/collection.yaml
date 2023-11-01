@@ -339,7 +339,6 @@ Resources:
     DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
-      AccessControl: LogDeliveryWrite
       OwnershipControls:
         Rules:
           - ObjectOwnership: BucketOwnerPreferred
@@ -393,6 +392,11 @@ Resources:
               Service: cloudtrail.amazonaws.com
             Action: 's3:PutObject'
             Resource: !Sub 'arn:${AWS::Partition}:s3:::${Bucket}/AWSLogs/${AWS::AccountId}/*'
+          - Effect: Allow
+            Principal:
+              Service: 'logging.s3.amazonaws.com'
+            Action: 's3:PutObject'
+            Resource: !Sub 'arn:${AWS::Partition}:s3:::${Bucket}/*'
   DeliveryStreamLogGroup:
     Type: 'AWS::Logs::LogGroup'
     Properties:
