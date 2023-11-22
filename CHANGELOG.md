@@ -1,3 +1,13 @@
+## [0.14.1](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.14.0...v0.14.1) (2023-11-22)
+
+
+### Bug Fixes
+
+* deprecate go1.x for provided.al2 ([#41](https://github.com/observeinc/cloudformation-aws-collection/issues/41)) ([9faad8f](https://github.com/observeinc/cloudformation-aws-collection/commit/9faad8ff7ad32c13fa05507437b97fc0e0ab5374))
+* resolve the cfn-lint error ([#42](https://github.com/observeinc/cloudformation-aws-collection/issues/42)) ([6739838](https://github.com/observeinc/cloudformation-aws-collection/commit/6739838576c5f5297e12139105a1ef8473cc883f))
+
+
+
 # [0.14.0](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.13.0...v0.14.0) (2023-09-18)
 
 
@@ -38,17 +48,6 @@
 ### Bug Fixes
 
 * **default-services:** remove services from the default list refs: OB-21129 ([#27](https://github.com/observeinc/cloudformation-aws-collection/issues/27)) ([9856ea7](https://github.com/observeinc/cloudformation-aws-collection/commit/9856ea7f9bea88f6c96f9f778da5d3917aaccb96))
-
-
-
-# [0.10.0](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.9.0...v0.10.0) (2023-07-27)
-
-
-### Bug Fixes
-
-* **collection:** allow configuration of lambda log verbosity ([#29](https://github.com/observeinc/cloudformation-aws-collection/issues/29)) ([269db50](https://github.com/observeinc/cloudformation-aws-collection/commit/269db50e0641a510a26af8bbeff0a124dd22069c))
-* **lambda:** bump timeout and memory size based on failure data ([841be86](https://github.com/observeinc/cloudformation-aws-collection/commit/841be865e9190c947aea19c8982541c6acade307))
-* remove duplicate log subscription ([#25](https://github.com/observeinc/cloudformation-aws-collection/issues/25)) ([49ceddb](https://github.com/observeinc/cloudformation-aws-collection/commit/49ceddbaa85682eabb77c518b88785abda157d8b))
 
 
 
