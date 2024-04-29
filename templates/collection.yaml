@@ -147,7 +147,7 @@ Parameters:
       it. The maximum allowed value is 900 seconds.
   LambdaMemorySize:
     Type: Number
-    Default: 2048
+    Default: 256
     MinValue: 128
     MaxValue: 10240
     Description: >-
