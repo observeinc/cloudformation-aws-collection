@@ -1,3 +1,12 @@
+## [0.14.2](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.14.1...v0.14.2) (2024-04-30)
+
+
+### Bug Fixes
+
+* CS-522 update default memory for lambda ([#44](https://github.com/observeinc/cloudformation-aws-collection/issues/44)) ([e551601](https://github.com/observeinc/cloudformation-aws-collection/commit/e5516017573adf0689815db80115116794fcb317))
+
+
+
 ## [0.14.1](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.14.0...v0.14.1) (2023-11-22)
 
 
@@ -39,15 +48,6 @@
 ### Bug Fixes
 
 * make sure lambda log group is successfully deleted on rollback ([#32](https://github.com/observeinc/cloudformation-aws-collection/issues/32)) ([e5b8b99](https://github.com/observeinc/cloudformation-aws-collection/commit/e5b8b99ace7e3b1d8507d5953f3fdf8e6d6e0aeb)), closes [#21](https://github.com/observeinc/cloudformation-aws-collection/issues/21) [#21](https://github.com/observeinc/cloudformation-aws-collection/issues/21)
-
-
-
-# [0.11.0](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.10.0...v0.11.0) (2023-07-28)
-
-
-### Bug Fixes
-
-* **default-services:** remove services from the default list refs: OB-21129 ([#27](https://github.com/observeinc/cloudformation-aws-collection/issues/27)) ([9856ea7](https://github.com/observeinc/cloudformation-aws-collection/commit/9856ea7f9bea88f6c96f9f778da5d3917aaccb96))
 
 
 
