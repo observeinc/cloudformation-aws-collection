@@ -13,6 +13,11 @@ Metadata:
       - ObserveDomain
       - ExpirationInDays
       - DeliveryFrequency
+    - Label:
+        default: 'AWS Organizations Configuration'
+      Parameters:
+      - OrgId
+      - SourceAccounts
 Parameters:
   ObserveCustomer:
     Type: String
@@ -50,8 +55,35 @@ Parameters:
     - Six_Hours
     - Twelve_Hours
     - TwentyFour_Hours
+  OrgId:
+    Type: String
+    Description: >-
+      Optional AWS Organizations ID. If set, adds an AllowAWSConfigFromOrg
+      statement on the bucket policy that allows publishes by aws:PrincipalOrgID.
+      Useful for AWS Control Tower integrations.
+    Default: ''
+    AllowedPattern: '^(o-[a-z0-9]{10,32})?$'
+  SourceAccounts:
+    Type: CommaDelimitedList
+    Description: >-
+      List of AWS account IDs allowed to publish to the S3 bucket via
+      AWS Config. Useful for sub-accounts in AWS Organizations and
+      Control Tower integrations. The current account ID is automatically
+      included when this list is non-empty.
+    Default: ''
+    AllowedPattern: '^\d*$'
 Conditions:
   HasExpirationInDays: !Not [!Equals [!Ref ExpirationInDays, 0]]
+  HasOrgId: !Not
+    - !Equals
+      - !Ref OrgId
+      - ""
+  HasSourceAccounts: !Not
+    - !Equals
+      - !Join
+        - ','
+        - !Ref SourceAccounts
+      - ''
 Resources:
   lambda:
     Type: AWS::CloudFormation::Stack
@@ -111,6 +143,34 @@ Resources:
           Condition:
             StringEquals:
               's3:x-amz-acl': 'bucket-owner-full-control'
+        - !If
+          - HasOrgId
+          - Effect: Allow
+            Principal:
+              Service: 'config.amazonaws.com'
+            Action: 's3:PutObject'
+            Resource: !Sub '${Bucket.Arn}/*AWSLogs/*'
+            Condition:
+              StringEquals:
+                's3:x-amz-acl': 'bucket-owner-full-control'
+                'aws:PrincipalOrgID': !Ref OrgId
+          - !Ref AWS::NoValue
+        - !If
+          - HasSourceAccounts
+          - Effect: Allow
+            Principal:
+              Service: 'config.amazonaws.com'
+            Action: 's3:PutObject'
+            Resource: !Sub '${Bucket.Arn}/*AWSLogs/*'
+            Condition:
+              StringEquals:
+                's3:x-amz-acl': 'bucket-owner-full-control'
+                'AWS:SourceAccount': !Split
+                  - ','
+                  - !Sub
+                    - '${Accounts},${AWS::AccountId}'
+                    - Accounts: !Join [',', !Ref SourceAccounts]
+          - !Ref AWS::NoValue
   ConfigDeliveryChannel:
     Type: AWS::Config::DeliveryChannel
     Properties:
