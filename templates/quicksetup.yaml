@@ -95,7 +95,7 @@ Resources:
       Code:
         S3Bucket: !FindInMap [RegionMap, !Ref 'AWS::Region', BucketName]
         S3Key: !Sub 'lambda/observer/arm64/${Version}.zip'
-      Runtime: provided.al2
+      Runtime: provided.al2023
       MemorySize: !Ref MemorySize
       Timeout: !Ref Timeout
       ReservedConcurrentExecutions: !Ref ReservedConcurrentExecutions
