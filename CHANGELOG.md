@@ -1,3 +1,12 @@
+# [0.15.0](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.14.2...v0.15.0) (2026-02-17)
+
+
+### Features
+
+* Added OrgId and SourceAccounts to SNS topic policy ([#45](https://github.com/observeinc/cloudformation-aws-collection/issues/45)) ([02ab715](https://github.com/observeinc/cloudformation-aws-collection/commit/02ab71591a41c3df79b2f99aacce713e40e7143f))
+
+
+
 ## [0.14.2](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.14.1...v0.14.2) (2024-04-30)
 
 
@@ -39,15 +48,6 @@
 ### Bug Fixes
 
 * **collection:** add organizations:List* back to snapshot ([#34](https://github.com/observeinc/cloudformation-aws-collection/issues/34)) ([6a900c5](https://github.com/observeinc/cloudformation-aws-collection/commit/6a900c501bbf4a9aa179a4ebaac417ea90a402ad))
-
-
-
-# [0.12.0](https://github.com/observeinc/cloudformation-aws-collection/compare/v0.11.0...v0.12.0) (2023-08-02)
-
-
-### Bug Fixes
-
-* make sure lambda log group is successfully deleted on rollback ([#32](https://github.com/observeinc/cloudformation-aws-collection/issues/32)) ([e5b8b99](https://github.com/observeinc/cloudformation-aws-collection/commit/e5b8b99ace7e3b1d8507d5953f3fdf8e6d6e0aeb)), closes [#21](https://github.com/observeinc/cloudformation-aws-collection/issues/21) [#21](https://github.com/observeinc/cloudformation-aws-collection/issues/21)
 
 
 
