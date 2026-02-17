@@ -128,7 +128,7 @@ Resources:
       VpcConfig:
         SecurityGroupIds: !Ref SecurityGroupIds
         SubnetIds: !Ref SubnetIds
-      Runtime: provided.al2
+      Runtime: provided.al2023
       MemorySize: !Ref MemorySize
       Timeout: !Ref Timeout
       ReservedConcurrentExecutions: !Ref ReservedConcurrentExecutions
